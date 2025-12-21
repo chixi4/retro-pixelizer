@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Retro Pixelizer Pro</title>
+  <style>
+/* 核心风格：扁平化 (Flat)、无阴影 (No Drop-shadow)、黑白线框 */
+:root {
+  --bg: #ffffff;
+  --fg: #000000;
+  --border: #000000;
+  --muted: #666666;
+  --panel-bg: #f5f5f5;
+  --hover-bg: #e0e0e0;
+  --accent: #000000;
+  --preview-box: 840px;
+}
+
+[data-theme="dark"] {
+  --bg: #111111;
+  --fg: #eeeeee;
+  --border: #666666;
+  --muted: #888888;
+  --panel-bg: #1a1a1a;
+  --hover-bg: #2a2a2a;
+  --accent: #ffffff;
+}
+
+/* Reset & Global Fixes */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Base */
+body {
+  font-family: "Courier New", "Liberation Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--fg);
+  height: 100vh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Layout */
+.page {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px; 
+  border-bottom: 2px solid var(--border);
+  flex-shrink: 0; 
+  background: var(--bg);
+  z-index: 20;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  text-transform: none;
+}
+
+.theme-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.theme-btn:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+/* --- 核心布局：左右分栏 (Desktop) --- */
+.main {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+  flex: 1;
+  overflow: hidden; 
+  padding: 20px;
+  height: 100%;
+}
+
+/* 左侧控制栏 */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  overflow-y: auto; 
+  scrollbar-width: none; 
+  -ms-overflow-style: none;
+}
+
+.controls::-webkit-scrollbar {
+  display: none;
+}
+
+/* 右侧预览区 */
+.preview-area {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Panel */
+.panel {
+  border: 2px solid var(--border);
+  padding: 16px;
+  background: var(--panel-bg);
+  flex-shrink: 0; 
+}
+
+.panel.palette-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto; 
+}
+
+.panel-title {
+  font-weight: bold;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Label Row Helper */
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0; 
+}
+
+/* Small Reset Button */
+.reset-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 10px;
+  padding: 2px 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.reset-btn:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.upload-area {
+  border: 2px dashed var(--border);
+  padding: 30px 10px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg) !important; /* 强制背景色不变 */
+  transition: border-color 0.2s;
+  -webkit-user-select: none; /* 禁止选中文本 */
+  user-select: none;
+}
+
+/* 只改变边框颜色，绝不改变背景色 */
+.upload-area:hover,
+.upload-area:active,
+.upload-area:focus {
+  background: var(--bg) !important;
+  border-color: var(--accent);
+}
+
+.upload-text {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* --- 自定义防误触滑块 --- */
+.custom-slider {
+  position: relative;
+  width: 100%;
+  height: 30px; 
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+  touch-action: pan-y; 
+  cursor: pointer;
+}
+
+.slider-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  pointer-events: none; 
+}
+
+.slider-thumb {
+  position: absolute;
+  left: 0; 
+  width: 28px; 
+  height: 28px;
+  margin-left: -14px; 
+  background: transparent; 
+  cursor: grab;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: pan-y;
+}
+
+.slider-thumb::after {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: var(--fg);
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  transition: transform 0.1s;
+}
+
+.slider-thumb:active::after {
+  transform: scale(1.2);
+}
+
+.slider-thumb:active {
+  cursor: grabbing;
+}
+
+/* Grid Buttons */
+.grid-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.btn-toggle {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  text-align: center;
+  transition: all 0.1s;
+}
+
+.btn-toggle:hover {
+  background: var(--hover-bg);
+}
+
+.btn-toggle.active {
+  background: var(--fg);
+  color: var(--bg);
+  font-weight: bold;
+}
+
+/* Palette List */
+.palette-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 280px; 
+  overflow-y: auto; 
+  border: 1px solid var(--border);
+  padding: 4px;
+  background: var(--bg);
+  margin-bottom: 10px; 
+}
+
+.palette-list::-webkit-scrollbar {
+  width: 6px;
+}
+.palette-list::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 3px;
+}
+
+.palette-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+  background: transparent;
+  color: var(--fg);
+  font-family: inherit;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  flex-shrink: 0; 
+}
+
+.palette-btn:last-child {
+  border-bottom: none;
+}
+
+.palette-btn:hover {
+  background: var(--hover-bg);
+}
+
+.palette-btn.active {
+  background: var(--fg);
+  color: var(--bg);
+  font-weight: bold;
+}
+
+.palette-name-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.palette-count {
+    opacity: 0.6;
+    font-size: 10px;
+}
+
+.palette-preview-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  width: 100%;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* --- XY Pad Control --- */
+.xy-pad-container {
+  position: relative;
+  width: 100%;
+  height: 140px; 
+  background: var(--bg);
+  border: 2px solid var(--border);
+  cursor: crosshair;
+  overflow: hidden;
+  touch-action: pan-y; 
+  margin-bottom: 8px;
+}
+
+#xyGridCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+}
+
+/* Action Button */
+.action-btn {
+  width: 100%;
+  background: var(--fg);
+  color: var(--bg);
+  border: 2px solid var(--border);
+  padding: 12px;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.action-btn:hover:not(:disabled) {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-bar {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  min-height: 1.5em;
+  display: none; 
+}
+
+/* Canvas Container */
+.canvas-container {
+  background: var(--panel-bg);
+  border: 2px dashed var(--border);
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: min(var(--preview-box), 100%);
+  height: min(var(--preview-box), 100%);
+  overflow: hidden; 
+  position: relative;
+  transition: border-style 0.3s;
+  flex: 0 0 auto;
+}
+
+.main.has-image .canvas-container {
+  border-style: solid;
+  align-items: center; 
+}
+
+.canvas-container::after {
+  content: "预览区域 (请先在左侧上传)";
+  color: var(--muted);
+  font-size: 14px;
+  position: absolute;
+}
+
+.main.has-image .canvas-container::after {
+  display: none;
+}
+
+canvas {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border: none; 
+  image-rendering: pixelated; 
+  display: none;
+  cursor: zoom-in;
+}
+
+/* 桌面端：预览显示尺寸固定（只变像素颗粒，不变占用大小） */
+@media (min-width: 769px) {
+  #mainCanvas {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.main.has-image canvas {
+  display: block;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* --- Close Button (Redesigned) --- */
+.close-btn {
+  position: absolute;
+  top: 8px; /* 调整：更靠边 */
+  right: 8px; /* 调整：更靠边 */
+  width: 32px; /* 调整：更小巧 */
+  height: 32px; /* 调整：更小巧 */
+  background: var(--bg); /* 实心背景 */
+  color: var(--fg);
+  border: 2px solid var(--fg); /* 实心边框 */
+  cursor: pointer;
+  display: none;
+  z-index: 20;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  padding: 0;
+}
+
+/* 用 SVG 或者 CSS 绘制一个粗线条的 X */
+.close-btn svg {
+  width: 18px; /* 调整：图标也按比例缩小 */
+  height: 18px;
+  stroke: var(--fg);
+  stroke-width: 2.5; /* 稍微细一点，保持清晰 */
+}
+
+/* 悬停或点击时反色，增加复古交互感 */
+.close-btn:hover,
+.close-btn:active {
+  background: var(--fg);
+}
+
+.close-btn:hover svg,
+.close-btn:active svg {
+  stroke: var(--bg);
+}
+
+.main.has-image .close-btn {
+  display: flex; /* 改为 flex 以居中图标 */
+}
+
+/* Fullscreen Modal */
+.fullscreen-modal {
+  display: none;
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000; 
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  cursor: zoom-out;
+}
+
+.fullscreen-modal.active {
+  display: flex;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.fullscreen-modal img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; 
+  image-rendering: pixelated;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* --- Responsive Mobile Styles --- */
+@media (max-width: 768px) {
+  :root {
+    --mobile-header-h: 0px;
+  }
+
+  /* 新思路：页面本身固定不滚动，只让控制区内部滚动 */
+  .page {
+    display: block;
+    overflow: hidden; /* 页面本身不滚动 */
+    height: 100vh;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+  }
+
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    padding: 10px;
+    margin-bottom: 0;
+    /* 默认隐藏在顶部外面 */
+    transform: translateY(-100%);
+    transition: transform 0.3s ease-out;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* 显示标题栏 */
+  .header.visible {
+    transform: translateY(0);
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    height: 100vh;
+    overflow: hidden; /* Main 本身也不滚动 */
+    position: relative;
+  }
+
+  .preview-area {
+    display: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* 有图片时，预览区固定在顶部 */
+  .main.has-image .preview-area {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--bg) !important;
+    border-bottom: 2px solid var(--border);
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    max-height: 40vh;
+    height: 40vh;
+    transform: translateY(0);
+    transition: transform 0.3s ease-out;
+    will-change: transform;
+  }
+
+  /* Header 和预览区同一时刻、同一曲线移动，避免出现“漏缝” */
+  .header.visible + .main.has-image .preview-area {
+    transform: translateY(var(--mobile-header-h));
+  }
+
+  .main.has-image .canvas-container {
+    min-height: auto;
+    height: 35vh;
+    width: 100%;
+    padding: 0;
+    background: transparent !important;
+    border: none !important; 
+    align-items: center;
+  }
+  
+  .canvas-container::after {
+    display: none;
+  }
+  
+  .main.has-image canvas {
+    max-height: 100%;
+    width: auto;
+    border: none !important; 
+    background: transparent !important; 
+    box-shadow: none;
+  }
+  
+  /* Mobile Close Button Logic */
+  .close-btn {
+    opacity: 0; /* 手机端默认不可见 */
+    pointer-events: none;
+    /* 继承全局的小尺寸样式，不再单独放大，因为 32px 在移动端也够按了，且更好看 */
+  }
+  
+  /* 只有当添加了 .visible 类（对应 Header 显示）才显示叉号 */
+  .close-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .controls {
+    /* 关键：控制区独立滚动，这是唯一可滚动的区域 */
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none; /* 禁止控制区的overscroll */
+    touch-action: pan-y;
+    padding: 15px;
+    padding-bottom: 80px;
+    flex: 1;
+    position: relative;
+  }
+
+  /* 无图时标题栏可见：给控制区预留标题栏高度，避免内容被遮住 */
+  .header.visible + .main .controls {
+    padding-top: calc(15px + var(--mobile-header-h));
+  }
+
+  /* 有图片时，控制区顶部留出预览区的空间 */
+  .main.has-image .controls {
+    padding-top: calc(40vh + 15px);
+    transition: padding-top 0.3s ease-out;
+  }
+
+  .header.visible + .main.has-image .controls {
+    padding-top: calc(40vh + 15px + var(--mobile-header-h));
+  }
+
+  .panel.palette-panel {
+    display: block;
+  }
+
+  .palette-list {
+    max-height: 200px;
+    overflow-y: auto; 
+  }
+
+  .palette-btn {
+    padding: 12px 10px;
+  }
+}
+  </style>
+</head>
+<body>
+
+<div id="fullscreenModal" class="fullscreen-modal">
+  <img id="fullscreenImage" src="" alt="Full Preview">
+</div>
+
+<div class="page" id="pageContainer">
+  <header class="header snap-active" id="headerRef">
+    <div class="title">Retro Pixelizer Pro</div>
+    <button id="themeToggle" class="theme-btn">◐</button>
+  </header>
+
+  <main class="main" id="mainContainer">
+    <!-- 左侧控制栏 -->
+    <aside class="controls">
+      
+      <!-- 1. 文件上传 -->
+      <div class="panel">
+        <div class="panel-title">输入图像</div>
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="fileInput" accept="image/*" hidden>
+          <div class="upload-text">点击或拖拽上传<br>支持 JPG, PNG</div>
+        </div>
+      </div>
+
+      <!-- 2. 分辨率 & 影调控制 -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>图像预处理</span>
+        </div>
+        
+        <div class="form-group">
+          <div class="label-row">
+            <label>图片像素</label>
+            <span id="widthDisplay" style="font-size: 12px; font-weight: bold; color: var(--accent);">128px</span>
+          </div>
+          <!-- 自定义防误触滑块 -->
+          <div class="custom-slider" id="widthSliderContainer">
+            <div class="slider-track"></div>
+            <div class="slider-thumb" id="widthSliderThumb"></div>
+          </div>
+        </div>
+        
+        <!-- XY Pad (十字准星阵列) -->
+        <div class="form-group">
+          <div class="label-row">
+            <label>影调调整</label>
+            <button id="resetToneBtn" class="reset-btn">↺ 还原</button>
+          </div>
+          <div class="xy-pad-container" id="xyPadContainer">
+            <canvas id="xyGridCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 算法 -->
+      <div class="panel">
+        <div class="panel-title">抖动算法</div>
+        <div class="grid-buttons" id="ditherGrid">
+          <button class="btn-toggle active" data-algo="atkinson">Atkinson</button>
+          <button class="btn-toggle" data-algo="floyd-steinberg">Floyd</button>
+          <button class="btn-toggle" data-algo="bayer-4x4">Bayer 4x4</button>
+          <button class="btn-toggle" data-algo="bayer-8x8">Bayer 8x8</button>
+          <button class="btn-toggle" data-algo="random">随机噪点</button>
+          <button class="btn-toggle" data-algo="none">无抖动</button>
+        </div>
+      </div>
+
+      <!-- 4. 调色板 -->
+      <div class="panel palette-panel">
+        <div class="panel-title">
+            <span>调色板</span>
+        </div>
+        <!-- 滚动列表 -->
+        <div class="palette-list" id="paletteList">
+            <!-- JS Generated -->
+        </div>
+      </div>
+
+      <!-- 5. 导出 -->
+      <div class="panel">
+        <button id="downloadBtn" class="action-btn" disabled>下载图片</button>
+      </div>
+
+    </aside>
+
+    <!-- 右侧预览区 -->
+    <section class="preview-area">
+      <div class="canvas-container">
+        <!-- 关闭按钮 (全新设计) -->
+        <button id="closeImageBtn" class="close-btn" title="关闭图片">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18" stroke-linecap="square" stroke-linejoin="round"/>
+            <path d="M6 6L18 18" stroke-linecap="square" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <canvas id="mainCanvas" title="点击全屏预览"></canvas>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+/**
+ * Retro Pixelizer Pro - Canvas Grid Edition
+ */
+
+const App = (() => {
+  // State
+  const state = {
+    originalImage: null,
+    targetWidth: 128,
+    ditherAlgo: 'atkinson',
+    palette: null,
+    paletteKey: 'dreamscape8', 
+    isSerpentine: true,
+    // Tone Map Values
+    toneX: 0, 
+    toneY: 0
+  };
+
+  // Full Palette Database
+  const PALETTES = {
+    "dreamscape8": { name: "Dreamscape8", colors: ["#c9cca1", "#caa05a", "#ae6a47", "#8b4049", "#543344", "#515262", "#63787d", "#8ea091"] },
+    "red-noir": { name: "Red Noir", colors: ["#FF0000", "#000000"] },
+    "oil-6": { name: "Oil 6", colors: ["#fbf5ef", "#f2d3ab", "#c69fa5", "#8b6d9c", "#494d7e", "#272744"] },
+    "slso8": { name: "SLSO8", colors: ["#0d2b45", "#203c56", "#544e68", "#8d697a", "#d08159", "#ffaa5e", "#ffd4a3", "#ffecd6"] },
+    "blessing": { name: "Blessing", colors: ["#74569b", "#96fbc7", "#f7ffae", "#ffb3cb", "#d8bfd8"] },
+    "nyx8": { name: "Nyx8", colors: ["#08141e", "#0f2a3f", "#20394f", "#f6d6bd", "#c3a38a", "#997577", "#816271", "#4e495f"] },
+    "ammo-8": { name: "Ammo-8", colors: ["#040c06", "#112318", "#1e3a29", "#305d42", "#4d8061", "#89a257", "#bedc7f", "#eeffcc"] },
+    "aap-64": { name: "AAP-64", colors: ["#060608", "#141013", "#3b1725", "#73172d", "#b4202a", "#df3e23", "#fa6a0a", "#f9a31b", "#ffd541", "#fffc40", "#d6f264", "#9cdb43", "#59c135", "#14a02e", "#1a7a3e", "#24523b", "#122020", "#143464", "#285cc4", "#249fde", "#20d6c7", "#a6fcdb", "#ffffff", "#fef3c0", "#fad6b8", "#f5a097", "#e86a73", "#bc4a9b", "#793a80", "#403353", "#242234", "#221c1a", "#322b28", "#71413b", "#bb7547", "#dba463", "#f4d29c", "#dae0ea", "#b3b9d1", "#8b93af", "#6d758d", "#4a5462", "#333941", "#422433", "#5b3138", "#8e5252", "#ba756a", "#e9b5a3", "#e3e6ff", "#b9bffb", "#849be4", "#588dbe", "#477d85", "#23674e", "#328464", "#5daf8d", "#92dcba", "#cdf7e2", "#e4d2aa", "#c7b08b", "#a08662", "#796755", "#5a4e44", "#423934"] },
+    "ink": { name: "Ink", colors: ["#1f1f29", "#413a42", "#596070", "#96a2b3", "#eaf0d8"] },
+    "blk-nx64": { name: "BLK NX64", colors: ["#000000", "#12173d", "#293268", "#464b8c", "#6b74b2", "#909edd", "#c1d9f2", "#ffffff", "#a293c4", "#7b6aa5", "#53427f", "#3c2c68", "#431e66", "#5d2f8c", "#854cbf", "#b483ef", "#8cff9b", "#42bc7f", "#22896e", "#14665b", "#0f4a4c", "#0a2a33", "#1d1a59", "#322d89", "#354ab2", "#3e83d1", "#50b9eb", "#8cdaff", "#53a1ad", "#3b768f", "#21526b", "#163755", "#008782", "#00aaa5", "#27d3cb", "#78fae6", "#cdc599", "#988f64", "#5c5d41", "#353f23", "#919b45", "#afd370", "#ffe091", "#ffaa6e", "#ff695a", "#b23c40", "#ff6675", "#dd3745", "#a52639", "#721c2f", "#b22e69", "#e54286", "#ff6eaf", "#ffa5d5", "#ffd3ad", "#cc817a", "#895654", "#61393b", "#3f1f3c", "#723352", "#994c69", "#c37289", "#f29faa", "#ffccd0"] },
+    "crimson": { name: "Crimson", colors: ["#eff9d6", "#ba5044", "#7a1c4b", "#1b0326"] },
+    "fiery-dreams": { name: "Fiery Dreams", colors: ["#251534", "#461753", "#701355", "#a41759", "#cd2561", "#de5568", "#f0a383", "#fae4b9", "#fffef0"] },
+    "k-angels-away-screen": { name: "K-Angel", colors: ["#946aa3", "#8e6bff", "#589adf", "#14c8f9", "#6adcea", "#a5b0ce", "#afabf3", "#fe89d9", "#f3bbe7", "#aadcff", "#8afdfe", "#bafff5", "#d2d2d5", "#d7c5f1", "#ebccf2", "#dae8ff", "#feecfa", "#fcfeff"] },
+    "nopal-12": { name: "NOPAL-12", colors: ["#e2e4df", "#c5cfc4", "#a8b5ae", "#92929c", "#ffeced", "#fbd4d2", "#f1b4b4", "#cca3a3", "#f1eab6", "#e4dba0", "#cac18a", "#aba47b"] },
+    "saccharide": { name: "Saccharide", colors: ["#c09dc3", "#ebaebc", "#ffcabb", "#ffe5ba", "#c8dcbe", "#a0cac2", "#87afbb", "#9dccd7", "#c3deeb", "#a6c7e7", "#97abd4", "#8b8fb0", "#b5a5d3", "#e1b6db", "#ffcbd7", "#ffe8dc", "#f4d2cd", "#e2b7be", "#c19caf", "#7d7390", "#ada3b9", "#cbbfcf", "#e5d9e1", "#fff7f0"] },
+    "sailor-moon-background": { name: "Sailor Moon BG", colors: ["#bdffff", "#5db8ca", "#5cadc3", "#378dae", "#3c7596", "#1e6da0", "#144d70", "#00245c", "#a0e1d9", "#80bcb9", "#438d98", "#07687b", "#065866", "#06505c", "#054752", "#d998c3", "#d48cd4", "#8797c5", "#e055b8", "#b65bb2", "#675390", "#3c377b", "#e8f8d7", "#dddac7", "#fdd3b0", "#ffdac9", "#ffcec7", "#d9bed0"] },
+    "st-24": { name: "ST 24", colors: ["#111126", "#141433", "#17174d", "#281d73", "#3e2680", "#6c29a6", "#8136b3", "#ba41d9", "#de73e5", "#ed9df2", "#e9c2f2", "#ffffff", "#dae7f2", "#9de7f2", "#73c7e5", "#4192d9", "#3670b3", "#295ba6", "#23468c", "#1d2873", "#2953a6", "#3663b3", "#417ed9", "#73a8e5"] },
+    "st-8-phoenix": { name: "ST 8 Phoenix", colors: ["#330d10", "#4d130f", "#732017", "#992817", "#bf481d", "#d97e16", "#e5be22", "#f2e749"] },
+    "starry13": { name: "starry13", colors: ["#4d456d", "#795389", "#a4628a", "#d38595", "#e9a7a3", "#f0d7b1", "#aec6a5", "#7ba1ab", "#657ba3", "#5a5f92", "#7d7db7", "#ad96cf", "#e6addd"] },
+    "sweethope": { name: "SweetHope", colors: ["#615e85", "#9c8dc2", "#d9a3cd", "#ebc3a7", "#e0e0dc", "#a3d1af", "#90b4de", "#717fb0"] },
+    "dream-haze-8": { name: "Dream Haze 8", colors: ["#3c42c4", "#6e51c8", "#a065cd", "#ce79d2", "#d68fb8", "#dda2a3", "#eac4ae", "#f4dfbe"] }
+  };
+
+  // DOM Elements
+  const els = {
+    fileInput: document.getElementById('fileInput'),
+    uploadArea: document.getElementById('uploadArea'),
+    // 自定义滑块元素
+    widthSliderContainer: document.getElementById('widthSliderContainer'),
+    widthSliderThumb: document.getElementById('widthSliderThumb'),
+    widthDisplay: document.getElementById('widthDisplay'),
+    // XY Elements
+    xyPadContainer: document.getElementById('xyPadContainer'),
+    xyGridCanvas: document.getElementById('xyGridCanvas'),
+    resetToneBtn: document.getElementById('resetToneBtn'),
+    //
+    ditherGrid: document.getElementById('ditherGrid'),
+    paletteList: document.getElementById('paletteList'),
+    canvas: document.getElementById('mainCanvas'),
+    downloadBtn: document.getElementById('downloadBtn'),
+    themeToggle: document.getElementById('themeToggle'),
+    mainContainer: document.getElementById('mainContainer'),
+    fullscreenModal: document.getElementById('fullscreenModal'),
+    fullscreenImage: document.getElementById('fullscreenImage'),
+    pageContainer: document.getElementById('pageContainer'), // Add pageContainer ref
+    header: document.getElementById('headerRef'),
+    closeBtn: document.getElementById('closeImageBtn') // 新增
+  };
+
+  // --- Initialization ---
+
+  function init() {
+    setupEventListeners();
+    setupGridInteractions();
+    setupCustomSlider(); // 初始化自定义滑块
+    renderPaletteList();
+    loadPalette('dreamscape8'); // Default
+    updateTheme();
+    setupMobileScrollLogic(); // Initialize enhanced scroll logic
+  }
+  
+  // --- 全新思路：监听控制区滚动，简单判断是否到顶 ---
+  function setupMobileScrollLogic() {
+    const elHeader = els.header;
+    const elControls = document.querySelector('.controls');
+    const elCloseBtn = els.closeBtn;
+
+    if (!elHeader || !elControls) return;
+
+    const mobileMQ = window.matchMedia('(max-width: 768px)');
+    if (!mobileMQ.matches) return;
+
+    const TOP_EPS = 3; // 允许一点点误差，避免必须精准到 0
+
+    const setHeaderVar = (px) => {
+      const val = Math.max(0, Number(px) || 0);
+      document.documentElement.style.setProperty('--mobile-header-h', `${val.toFixed(2)}px`);
+      return val;
+    };
+    const updateHeaderVar = () => {
+      const h = elHeader.getBoundingClientRect().height || 0;
+      return setHeaderVar(h);
+    };
+    const showHeader = () => {
+      updateHeaderVar(); // 先同步高度，保证 Header/预览区动画一致
+      elHeader.classList.add('visible');
+      if (elCloseBtn && state.originalImage) elCloseBtn.classList.add('visible');
+    };
+    const hideHeader = () => {
+      elHeader.classList.remove('visible');
+      if (elCloseBtn) elCloseBtn.classList.remove('visible');
+    };
+
+    let activeImage = null;
+    let armed = false;
+    let didScrollSinceLoad = false;
+    let lastScrollTop = 0;
+    let touchStartY = null;
+    let pulledThisGesture = false;
+    let gestureId = 0;
+    let armedAtGesture = -1;
+
+    const syncImageSession = () => {
+      if (state.originalImage === activeImage) return;
+      activeImage = state.originalImage;
+      armed = false;
+      armedAtGesture = -1;
+      didScrollSinceLoad = false;
+      lastScrollTop = 0;
+      hideHeader();
+    };
+
+    elControls.addEventListener('scroll', () => {
+      if (!state.originalImage || !mobileMQ.matches) return;
+      syncImageSession();
+
+      const scrollTop = elControls.scrollTop;
+      const scrollingUp = scrollTop < lastScrollTop;
+      lastScrollTop = scrollTop;
+
+      if (scrollTop > 5) didScrollSinceLoad = true;
+
+      // 关键修正：如果用户是通过“滑回顶部”来到顶端（含惯性滚动），把这次视作第一次动作（armed）
+      // 这样下一次下拉（第二次滑）就能直接显示 Header + 叉号。
+      if (didScrollSinceLoad && scrollingUp && scrollTop <= TOP_EPS && !elHeader.classList.contains('visible')) {
+        armed = true;
+        armedAtGesture = gestureId;
+      }
+
+      // 往下滚动超过一定距离才隐藏，避免闪烁
+      if (!scrollingUp && scrollTop > 100 && elHeader.classList.contains('visible')) {
+        hideHeader();
+      }
+    }, { passive: true });
+
+    elControls.addEventListener('touchstart', (e) => {
+      if (!state.originalImage || !mobileMQ.matches) return;
+      gestureId += 1;
+      touchStartY = e.touches && e.touches[0] ? e.touches[0].clientY : null;
+      pulledThisGesture = false;
+    }, { passive: true });
+
+    elControls.addEventListener('touchmove', (e) => {
+      if (!state.originalImage || !mobileMQ.matches) return;
+      syncImageSession(); // 在这里检查图片是否变化
+      if (touchStartY == null) return;
+      if (elHeader.classList.contains('visible')) return; // header显示时不处理
+      if (elControls.scrollTop > TOP_EPS) return; // 只在顶部处理
+
+      const y = e.touches && e.touches[0] ? e.touches[0].clientY : null;
+      if (y == null) return;
+
+      // 手指向下拉（下拉刷新的动作）= dy > 0
+      const dy = y - touchStartY;
+      if (dy <= 0) return; // 必须是向下拉
+      if (dy < 15) return; // 至少15px
+
+      e.preventDefault(); // 阻止overscroll
+      if (pulledThisGesture) return;
+      pulledThisGesture = true;
+
+      // 初始态（刚上传且没滚动过）：一次下拉直接显示
+      if (!didScrollSinceLoad) {
+        showHeader();
+        armed = false;
+        armedAtGesture = -1;
+        return;
+      }
+
+      // 已滚动过：需要两次动作
+      if (!armed) {
+        armed = true;
+        armedAtGesture = gestureId;
+        return;
+      }
+
+      // armed 是在当前手势里刚设置的：仍然算“第一次”，不在同一次手势里直接显示
+      if (armedAtGesture === gestureId) return;
+
+      showHeader();
+      armed = false;
+      armedAtGesture = -1;
+    }, { passive: false });
+
+    elControls.addEventListener('touchend', () => {
+      if (!state.originalImage || !mobileMQ.matches) return;
+      touchStartY = null;
+      pulledThisGesture = false;
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+      if (!mobileMQ.matches) return;
+      if (elHeader.classList.contains('visible')) updateHeaderVar();
+    }, { passive: true });
+
+    // 手机端无图初始态：标题栏默认显示（可切换主题等），且不显示叉号
+    if (!state.originalImage) {
+      elHeader.classList.add('visible');
+      if (elCloseBtn) elCloseBtn.classList.remove('visible');
+    }
+
+    updateHeaderVar();
+  }
+
+  // --- 核心更新：自定义防误触滑块逻辑 ---
+  function setupCustomSlider() {
+    const min = 32;
+    const max = 640;
+    const step = 4;
+    let isDragging = false;
+
+    // 更新 UI 位置
+    const updateUI = () => {
+      const containerW = els.widthSliderContainer.offsetWidth;
+      const percent = (state.targetWidth - min) / (max - min);
+      const availW = containerW; 
+      
+      const leftPos = percent * availW;
+      const clampedPos = Math.max(0, Math.min(availW, leftPos));
+      
+      els.widthSliderThumb.style.left = `${clampedPos}px`;
+      els.widthDisplay.textContent = `${state.targetWidth}px`;
+    };
+
+    // 从位置反推数值
+    const updateValueFromX = (clientX) => {
+      const rect = els.widthSliderContainer.getBoundingClientRect();
+      let x = clientX - rect.left;
+      x = Math.max(0, Math.min(rect.width, x));
+      
+      const percent = x / rect.width;
+      let val = min + percent * (max - min);
+      
+      val = Math.round(val / step) * step;
+      
+      if (val !== state.targetWidth) {
+        state.targetWidth = val;
+        updateUI();
+        requestProcess();
+      }
+    };
+
+    const start = (e) => {
+      isDragging = true;
+      e.preventDefault(); 
+      els.widthSliderThumb.classList.add('active');
+    };
+
+    const move = (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      updateValueFromX(clientX);
+    };
+
+    const end = () => {
+      isDragging = false;
+      els.widthSliderThumb.classList.remove('active');
+    };
+
+    const thumb = els.widthSliderThumb;
+    thumb.addEventListener('mousedown', start);
+    thumb.addEventListener('touchstart', start, {passive: false});
+
+    window.addEventListener('mousemove', move);
+    window.addEventListener('touchmove', move, {passive: false});
+
+    window.addEventListener('mouseup', end);
+    window.addEventListener('touchend', end);
+    
+    window.addEventListener('resize', updateUI);
+    setTimeout(updateUI, 100);
+  }
+
+  // --- New Grid System (Crosshair Matrix) ---
+  let gridCtx;
+  let isDraggingGrid = false;
+  let cursorX = 0;
+  let cursorY = 0;
+  let gridPoints = [];
+  let resetGridState = () => {}; // External hook
+  
+  const HIT_RADIUS = 44; 
+  
+  function setupGridInteractions() {
+    const canvas = els.xyGridCanvas;
+    gridCtx = canvas.getContext('2d');
+    
+    const resizeGrid = () => {
+        const rect = els.xyPadContainer.getBoundingClientRect();
+        if (rect.width === 0) return;
+        
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        
+        gridCtx.setTransform(1, 0, 0, 1, 0, 0); 
+        gridCtx.scale(dpr, dpr);
+        
+        if (cursorX === 0 && cursorY === 0) {
+            cursorX = rect.width / 2;
+            cursorY = rect.height / 2;
+        }
+
+        initGridPoints(rect.width, rect.height);
+        drawGrid();
+    };
+    
+    const reset = () => {
+        const rect = els.xyPadContainer.getBoundingClientRect();
+        state.toneX = 0;
+        state.toneY = 0;
+        cursorX = rect.width / 2;
+        cursorY = rect.height / 2;
+        drawGrid();
+        requestProcess();
+    };
+    
+    resetGridState = reset;
+
+    window.addEventListener('resize', resizeGrid);
+    setTimeout(resizeGrid, 100);
+
+    cursorX = 0;
+    cursorY = 0;
+
+    const updateCursor = (clientX, clientY) => {
+        const rect = els.xyPadContainer.getBoundingClientRect();
+        let x = clientX - rect.left;
+        let y = clientY - rect.top;
+        x = Math.max(0, Math.min(rect.width, x));
+        y = Math.max(0, Math.min(rect.height, y));
+        cursorX = x;
+        cursorY = y;
+        
+        const nx = x / rect.width;
+        const ny = y / rect.height;
+        state.toneX = (nx * 2) - 1; 
+        state.toneY = 1 - (ny * 2); 
+        
+        requestProcess();
+    };
+
+    const start = (e) => {
+        const touch = e.touches ? e.touches[0] : e;
+        const rect = els.xyPadContainer.getBoundingClientRect();
+        const touchX = touch.clientX - rect.left;
+        const touchY = touch.clientY - rect.top;
+        
+        const dist = Math.sqrt(Math.pow(touchX - cursorX, 2) + Math.pow(touchY - cursorY, 2));
+        
+        if (dist <= HIT_RADIUS) {
+            isDraggingGrid = true;
+            if(e.cancelable) e.preventDefault();
+            updateCursor(touch.clientX, touch.clientY);
+            loopGrid();
+        } else {
+            isDraggingGrid = false;
+        }
+    };
+    
+    const move = (e) => {
+        if (!isDraggingGrid) return;
+        if(e.cancelable) e.preventDefault();
+        const touch = e.touches ? e.touches[0] : e;
+        updateCursor(touch.clientX, touch.clientY);
+    };
+    
+    const end = (e) => {
+        if (isDraggingGrid) {
+            isDraggingGrid = false;
+            drawGrid(); 
+        }
+    };
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('touchstart', start, {passive: false});
+    
+    window.addEventListener('mousemove', move);
+    window.addEventListener('touchmove', move, {passive: false});
+    
+    window.addEventListener('mouseup', end);
+    window.addEventListener('touchend', end);
+    window.addEventListener('touchcancel', end);
+    
+    // Double click to reset
+    canvas.addEventListener('dblclick', reset);
+    
+    loopGrid();
+}
+
+  function initGridPoints(w, h) {
+      gridPoints = [];
+      const step = 20; 
+      let cols = Math.ceil(w / step);
+      if (cols % 2 === 0) cols++; 
+      
+      let rows = Math.ceil(h / step);
+      if (rows % 2 === 0) rows++;
+
+      const totalW = (cols - 1) * step;
+      const totalH = (rows - 1) * step;
+      
+      const offsetX = (w - totalW) / 2;
+      const offsetY = (h - totalH) / 2;
+
+      for(let y=0; y<rows; y++) {
+          for(let x=0; x<cols; x++) {
+              gridPoints.push({
+                  x: offsetX + x * step,
+                  y: offsetY + y * step
+              });
+          }
+      }
+  }
+
+  function drawGrid() {
+      const rect = els.xyPadContainer.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      
+      gridCtx.clearRect(0, 0, w, h);
+      
+      const themeFg = getComputedStyle(document.body).getPropertyValue('--fg').trim();
+      
+      const maxDist = 40;
+      
+      gridPoints.forEach(p => {
+          const dx = p.x - cursorX;
+          const dy = p.y - cursorY;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          
+          let alpha = 0.15;
+          let size = 3;
+          let thickness = 0.5;
+
+          if (dist < maxDist) {
+              const factor = (1 - dist / maxDist);
+              alpha = 0.15 + factor * 0.85;
+              size = 3 + factor * 2;
+              thickness = 0.5 + factor * 1.5;
+          }
+
+          gridCtx.beginPath();
+          gridCtx.strokeStyle = themeFg;
+          gridCtx.lineWidth = thickness;
+          gridCtx.globalAlpha = alpha;
+          
+          gridCtx.moveTo(p.x - size, p.y);
+          gridCtx.lineTo(p.x + size, p.y);
+          gridCtx.moveTo(p.x, p.y - size);
+          gridCtx.lineTo(p.x, p.y + size);
+          gridCtx.stroke();
+      });
+  }
+
+  function loopGrid() {
+      drawGrid();
+      if(isDraggingGrid) {
+          requestAnimationFrame(loopGrid);
+      }
+  }
+
+  function setupEventListeners() {
+    els.uploadArea.addEventListener('click', () => els.fileInput.click());
+    els.fileInput.addEventListener('change', handleFileSelect);
+    els.uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); els.uploadArea.style.borderColor = 'var(--fg)'; });
+    els.uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); els.uploadArea.style.borderColor = 'var(--border)'; });
+    els.uploadArea.addEventListener('drop', handleDrop);
+
+    els.ditherGrid.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-toggle')) {
+        document.querySelectorAll('#ditherGrid .btn-toggle').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        state.ditherAlgo = e.target.dataset.algo;
+        requestProcess();
+      }
+    });
+    
+    els.resetToneBtn.addEventListener('click', () => {
+        resetGridState();
+    });
+
+    els.downloadBtn.addEventListener('click', downloadImage);
+    
+    // Close Button Event
+    els.closeBtn.addEventListener('click', closeImage);
+
+    els.themeToggle.addEventListener('click', () => {
+        toggleTheme();
+        setTimeout(() => {
+            const canvas = els.xyGridCanvas;
+            const ctx = canvas.getContext('2d');
+            gridCtx = ctx; 
+            drawGrid();
+        }, 50);
+    });
+
+    els.canvas.addEventListener('click', () => {
+      if (state.lastOutput) {
+        els.fullscreenImage.src = state.lastOutput.toDataURL();
+        els.fullscreenModal.classList.add('active');
+      }
+    });
+
+    els.fullscreenModal.addEventListener('click', () => {
+      els.fullscreenModal.classList.remove('active');
+    });
+  }
+  
+  function closeImage(e) {
+      if(e) e.stopPropagation();
+
+      state.originalImage = null;
+      state.lastOutput = null;
+
+      // 清理处理缓存，释放内存并避免下次误命中
+      proc.scaled.image = null;
+      proc.scaled.data = null;
+      proc.work.data = null;
+      proc.work.imageData = null;
+      proc.bufferCanvas.width = 0;
+      proc.bufferCanvas.height = 0;
+      proc.pixelCanvas.width = 0;
+      proc.pixelCanvas.height = 0;
+
+      els.closeBtn.classList.remove('visible');
+
+      // 手机端关闭图片后回到“无图”状态：标题栏应显示
+      if (window.innerWidth <= 768) {
+          els.header.classList.add('visible');
+          const h = els.header.getBoundingClientRect().height || 0;
+          document.documentElement.style.setProperty('--mobile-header-h', `${Math.max(0, h).toFixed(2)}px`);
+      }
+
+      els.mainContainer.classList.remove('has-image');
+
+      els.fileInput.value = '';
+      els.downloadBtn.disabled = true;
+
+      const ctx = els.canvas.getContext('2d');
+      ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
+
+      // 控制区滚回顶部
+      const controls = document.querySelector('.controls');
+      if (controls) controls.scrollTop = 0;
+  }
+
+  function updateTheme() {
+    const isDark = localStorage.getItem('pixelizer_theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('pixelizer_theme', next);
+    updateTheme();
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    els.uploadArea.style.borderColor = 'var(--border)';
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadFile(file);
+  }
+
+  function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) loadFile(file);
+    e.target.value = '';
+  }
+
+  function loadFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        state.originalImage = img;
+        els.mainContainer.classList.add('has-image');
+        els.downloadBtn.disabled = false;
+        
+        resetGridState();
+
+        // 手机端确保header隐藏，closeBtn也隐藏
+        if (window.innerWidth <= 768) {
+            els.header.classList.remove('visible');
+            els.closeBtn.classList.remove('visible');
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function renderPaletteList() {
+    els.paletteList.innerHTML = '';
+    
+    const sortedPalettes = Object.keys(PALETTES)
+        .map(key => ({ key, ...PALETTES[key] }))
+        .sort((a, b) => a.colors.length - b.colors.length);
+
+    sortedPalettes.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'palette-btn';
+      if (p.key === 'dreamscape8') btn.classList.add('active');
+      
+      btn.onclick = () => {
+        document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        loadPalette(p.key);
+      };
+
+      const headerRow = document.createElement('div');
+      headerRow.className = 'palette-name-row';
+      
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = p.name;
+      
+      const countSpan = document.createElement('span');
+      countSpan.className = 'palette-count';
+      countSpan.textContent = `${p.colors.length}色`;
+      
+      headerRow.appendChild(nameSpan);
+      headerRow.appendChild(countSpan);
+
+      const dotsDiv = document.createElement('div');
+      dotsDiv.className = 'palette-preview-dots';
+      
+      p.colors.forEach(c => {
+          const dot = document.createElement('div');
+          dot.className = 'dot';
+          dot.style.backgroundColor = c;
+          dotsDiv.appendChild(dot);
+      });
+
+      btn.appendChild(headerRow);
+      btn.appendChild(dotsDiv);
+      els.paletteList.appendChild(btn);
+    });
+  }
+
+  function loadPalette(key) {
+    state.paletteKey = key;
+    loadPaletteData(PALETTES[key].colors);
+  }
+  
+  function loadPaletteData(colors) {
+      state.palette = hexToRgb(colors);
+      // warm up palette cache (perf)
+      ensurePaletteFast(state.palette);
+      requestProcess();
+  }
+
+  function hexToRgb(hexArr) {
+    return hexArr.map(h => {
+      const r = parseInt(h.slice(1, 3), 16);
+      const g = parseInt(h.slice(3, 5), 16);
+      const b = parseInt(h.slice(5, 7), 16);
+      return { r, g, b };
+    });
+  }
+
+  let isProcessing = false;
+  let updatePending = false;
+
+  // --- Processing buffers (perf) ---
+  const proc = {
+      bufferCanvas: document.createElement('canvas'),
+      bufferCtx: null,
+      pixelCanvas: document.createElement('canvas'),
+      pixelCtx: null,
+      scaled: {
+          image: null,
+          w: 0,
+          h: 0,
+          data: null
+      },
+      work: {
+          w: 0,
+          h: 0,
+          data: null,
+          imageData: null
+      }
+  };
+
+  function requestProcess() {
+    if (!state.originalImage || !state.palette) return;
+
+    if (isProcessing) {
+      updatePending = true;
+      return;
+    }
+
+    isProcessing = true;
+    updatePending = false;
+
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            processImage();
+            isProcessing = false;
+            if (updatePending) {
+                requestProcess();
+            }
+        }, 0);
+    });
+  }
+
+  function processImage() {
+    const { originalImage, targetWidth, palette, ditherAlgo, toneX, toneY } = state;
+
+    const aspect = originalImage.height / originalImage.width;
+    const targetHeight = Math.round(targetWidth * aspect);
+    
+    // 1) Build / reuse scaled base pixels (costly draw+getImageData happens only when size/image changes)
+    if (
+        proc.scaled.image !== originalImage ||
+        proc.scaled.w !== targetWidth ||
+        proc.scaled.h !== targetHeight ||
+        !proc.scaled.data
+    ) {
+        const buffer = proc.bufferCanvas;
+        buffer.width = targetWidth;
+        buffer.height = targetHeight;
+
+        if (!proc.bufferCtx) {
+            proc.bufferCtx = buffer.getContext('2d', { willReadFrequently: true });
+        }
+        const ctx = proc.bufferCtx;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(originalImage, 0, 0, targetWidth, targetHeight);
+
+        const baseImageData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+        proc.scaled = {
+            image: originalImage,
+            w: targetWidth,
+            h: targetHeight,
+            data: baseImageData.data
+        };
+    }
+
+    // 2) Reuse working buffer to avoid allocations / GC churn
+    const baseData = proc.scaled.data;
+    const neededLen = baseData.length;
+    if (!proc.work.data || proc.work.data.length !== neededLen) {
+        proc.work.data = new Uint8ClampedArray(neededLen);
+        proc.work.imageData = new ImageData(proc.work.data, targetWidth, targetHeight);
+        proc.work.w = targetWidth;
+        proc.work.h = targetHeight;
+    }
+    proc.work.data.set(baseData);
+
+    const workImageData = proc.work.imageData;
+
+    // 3) Tone map (stats computed from base pixels, then applied to working buffer)
+    if (toneX !== 0 || toneY !== 0) {
+        const toneStats = getToneStats({ data: baseData, width: targetWidth, height: targetHeight });
+        applyDynamicToneMapping(workImageData, toneX, toneY, toneStats);
+    }
+
+    switch (ditherAlgo) {
+      case 'floyd-steinberg':
+        ditherErrorDiffusion(workImageData, palette, 'floyd', state.isSerpentine);
+        break;
+      case 'atkinson':
+        ditherErrorDiffusion(workImageData, palette, 'atkinson', state.isSerpentine);
+        break;
+      case 'bayer-4x4':
+        ditherBayer(workImageData, palette, 4);
+        break;
+      case 'bayer-8x8':
+        ditherBayer(workImageData, palette, 8);
+        break;
+      case 'random':
+        ditherRandom(workImageData, palette);
+        break;
+      default:
+        ditherNearest(workImageData, palette);
+    }
+
+    const displayScale = Math.max(1, Math.floor(1000 / targetWidth));
+    els.canvas.width = targetWidth * displayScale;
+    els.canvas.height = targetHeight * displayScale;
+    
+    const displayCtx = els.canvas.getContext('2d');
+    
+    const pixelCanvas = proc.pixelCanvas;
+    pixelCanvas.width = targetWidth;
+    pixelCanvas.height = targetHeight;
+    if (!proc.pixelCtx) {
+        proc.pixelCtx = pixelCanvas.getContext('2d', { willReadFrequently: true });
+    }
+    proc.pixelCtx.putImageData(workImageData, 0, 0);
+    
+    displayCtx.imageSmoothingEnabled = false;
+    displayCtx.drawImage(pixelCanvas, 0, 0, els.canvas.width, els.canvas.height);
+    
+    state.lastOutput = pixelCanvas;
+    els.downloadBtn.disabled = false;
+  }
+  
+  function applyDynamicToneMapping(imageData, x, y, toneStats) {
+    const data = imageData.data;
+    const len = data.length;
+
+    const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+
+    const pivotRaw = (toneStats && typeof toneStats.pivot === 'number') ? toneStats.pivot : 0.5;
+    const range = (toneStats && typeof toneStats.range === 'number') ? toneStats.range : 1.0;
+    const p5Raw = (toneStats && typeof toneStats.p5 === 'number') ? toneStats.p5 : 0;
+    const p95Raw = (toneStats && typeof toneStats.p95 === 'number') ? toneStats.p95 : 255;
+
+    // 根据当前调整强度动态留出 headroom，避免极端时高光打死/暗部死黑
+    const strength = clamp01(Math.max(Math.abs(x), Math.abs(y)));
+    const guard = 1 + Math.round(3 * strength); // 1..4 (8bit)
+    const eps = guard / 255.0; // 0.004..0.016
+    const lo = eps;
+    const hi = 1.0 - eps;
+
+    const logit = (v) => Math.log(v / (1 - v));
+    const invLogit = (t) => 1 / (1 + Math.exp(-t));
+
+    // 自适应中值：把对比度“中线”对齐到照片的中值，但 0 点仍然是完全不动
+    const pivot = clamp(pivotRaw, 0.05, 0.95);
+    const pivotSafe = clamp(pivot, lo, hi);
+    const lp = logit(pivotSafe);
+
+    // 影调变化越大（range 越大），亮度手感越“有力”；变化不明显则更克制
+    const contrastConfidence = smoothstep(0.18, 0.75, range); // 0=flat, 1=high-contrast
+
+    // --- Contrast (X): logit-domain slope around pivot, has toe+shoulder (不会硬截断) ---
+    // 额外“安全边界”：保证大多数高光不打死、暗部不死黑（也让软饱和有发挥空间）
+    const targetGuard = guard + Math.round(5 * strength); // 1..9 (8bit)
+    const loT = clamp(targetGuard / 255.0, lo, 0.45);
+    const hiT = clamp(1.0 - (targetGuard / 255.0), 0.55, hi);
+    const Llo = logit(loT);
+    const Lhi = logit(hiT);
+
+    const v5 = clamp(p5Raw / 255.0, lo, hi);
+    const v95 = clamp(p95Raw / 255.0, lo, hi);
+    const t5 = logit(v5);
+    const t95 = logit(v95);
+    const d5 = t5 - lp;
+    const d95 = t95 - lp;
+
+    // 给“加对比度”一个自适应上限：避免极端 X 把高光/暗部挤到边界上导致“过曝/死黑”
+    let cMax = 8.0;
+    if (d95 > 1e-6) cMax = Math.min(cMax, (Lhi - lp) / d95);
+    if (d5 < -1e-6) cMax = Math.min(cMax, (Llo - lp) / d5); // d5<0 且 Llo-lp<0 => 正数上限
+    cMax = clamp(cMax, 1.0, 8.0);
+
+    const xCurve = Math.sign(x) * Math.pow(Math.abs(x), 1.25);
+    const xScale = 1.0 + (1.0 - contrastConfidence) * 0.30; // flat 图稍更敏感
+    const xEff = clamp(xCurve * xScale, -1.0, 1.0);
+    const xSat = Math.tanh(xEff * 1.25) / Math.tanh(1.25);
+    const contrastMax = 2.12; // 2^2.12 ≈ 4.35（高对比图会被 cMax 自动限制）
+    const cWanted = Math.pow(2, xSat * contrastMax);
+    const c = Math.min(cWanted, cMax);
+
+    // --- Brightness (Y): 用“加权 logit shift”做非对称提亮/压暗 ---
+    // 提亮时主要抬暗部、尽量不推高光；压暗时主要压亮部、尽量不压暗部
+    const yCurve = Math.sign(y) * Math.pow(Math.abs(y), 1.60);
+    const yScale = 1.0 + contrastConfidence * 0.50; // 影调关系清晰 -> 亮度更“有劲”
+    const dirScaleRaw = (y >= 0)
+      ? (1.0 + (0.5 - pivotSafe) * 0.90)  // 暗图更容易提亮
+      : (1.0 + (pivotSafe - 0.5) * 0.90); // 亮图更容易压暗
+    const dirScale = clamp(dirScaleRaw, 0.90, 1.25);
+    const yEff = clamp(yCurve * yScale * dirScale, -1.0, 1.0);
+    const ySat = Math.tanh(yEff * 1.15) / Math.tanh(1.15);
+
+    // “梯形”手感：越靠左亮度范围越小（更精细），往右逐渐放大，到中线后保持最大
+    const yRangeT = clamp01(x + 1.0); // x=-1 =>0, x=0 =>1, x>0 =>1
+    const yRangeScale = 0.62 + 0.38 * yRangeT; // 左侧 62% 范围，右侧 100%
+
+    const bMax = (2.55 + 0.85 * contrastConfidence) * yRangeScale; // 1.58..3.40
+    const brightnessRangeScale = 0.7; // 亮度调整范围缩放（1=当前强度）
+    const bBase = ySat * bMax * brightnessRangeScale;
+    const yWeightPow = 1.05;
+
+    // Build luma mapping LUT (0..255), output stays within [guard..255-guard]
+    const lumaLut = new Float32Array(256);
+    for (let i = 0; i < 256; i++) {
+      const v = clamp(i / 255.0, lo, hi);
+      let t = (logit(v) - lp) * c + lp;
+
+      if (bBase !== 0) {
+        const vc = invLogit(t);
+        const w = (bBase > 0)
+          ? Math.pow(1.0 - vc, yWeightPow)
+          : Math.pow(vc, yWeightPow);
+        t += bBase * w;
+      }
+
+      const out = clamp(invLogit(t), lo, hi);
+      lumaLut[i] = out * 255.0;
+    }
+
+    // Fluorescent fix: highlights/shadows auto desaturate (只在接近黑白时生效，避免“荧光”)
+    // - Midtones keep saturation (factor ~1)
+    // - Near extremes, reduce chroma more when adjustment is strong and when luma shift is large
+    const satLut = new Float32Array(256);
+    const edgeWidth = 0.30; // 0..0.5, bigger => wider highlight/shadow rolloff
+    const satEdgeStrength = 0.78; // strength=1 -> minSat ~ 0.22 (更明显)
+    const minSat = 1.0 - satEdgeStrength * strength;
+    const deltaK = 0.9 + 2.2 * strength; // bigger => more desat when luma shifts a lot
+
+    for (let i = 0; i < 256; i++) {
+      const nl = lumaLut[i];
+      const nl01 = nl / 255.0;
+      const dEdge = Math.min(nl01, 1.0 - nl01); // 0 at extremes, 0.5 at mid
+
+      let t = dEdge / edgeWidth;
+      t = clamp01(t);
+      const edgeW = t * t * (3 - 2 * t); // 0 at extremes, 1 at mid
+
+      const satEdge = minSat + (1.0 - minSat) * edgeW; // minSat at extremes, 1 at mid
+
+      const dL = Math.abs(nl - i) / 255.0;
+      const satDelta = Math.exp(-dL * deltaK); // <=1
+      const satDeltaEdge = edgeW + (1.0 - edgeW) * satDelta; // mid=1, extremes=satDelta
+
+      satLut[i] = clamp01(satEdge * satDeltaEdge);
+    }
+
+    // Soft-saturation / gamut-guard: adjust luma first, then reduce chroma only when needed
+    const lower = guard;
+    const upper = 255 - guard;
+
+    for (let idx = 0; idx < len; idx += 4) {
+      const r0 = data[idx];
+      const g0 = data[idx + 1];
+      const b0 = data[idx + 2];
+
+      const l = (77 * r0 + 150 * g0 + 29 * b0) >> 8;
+      const nl = lumaLut[l];
+
+      const dr = r0 - l;
+      const dg = g0 - l;
+      const db = b0 - l;
+
+      let sat = 1.0;
+      if (dr > 0) sat = Math.min(sat, (upper - nl) / dr);
+      else if (dr < 0) sat = Math.min(sat, (lower - nl) / dr);
+
+      if (dg > 0) sat = Math.min(sat, (upper - nl) / dg);
+      else if (dg < 0) sat = Math.min(sat, (lower - nl) / dg);
+
+      if (db > 0) sat = Math.min(sat, (upper - nl) / db);
+      else if (db < 0) sat = Math.min(sat, (lower - nl) / db);
+
+      sat = clamp01(sat);
+      if (!Number.isFinite(sat)) sat = 0.0;
+
+      // Extra rolloff (addresses “荧光感”): only reduces chroma, never increases it
+      sat *= satLut[l];
+
+      const rAdj = nl + dr * sat;
+      const gAdj = nl + dg * sat;
+      const bAdj = nl + db * sat;
+
+      // Uint8ClampedArray will clamp/round for us (faster than Math.min/Math.max here)
+      data[idx]     = rAdj;
+      data[idx + 1] = gAdj;
+      data[idx + 2] = bAdj;
+    }
+  }
+
+  // --- Tone Analysis (Adaptive Pivot + Sensitivity) ---
+  let toneStatsCache = {
+      image: null,
+      w: 0,
+      h: 0,
+      stats: null
+  };
+
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const smoothstep = (edge0, edge1, x) => {
+      if (edge0 === edge1) return x < edge0 ? 0 : 1;
+      const t = clamp01((x - edge0) / (edge1 - edge0));
+      return t * t * (3 - 2 * t);
+  };
+
+  function computeToneStats(imageData) {
+      const data = imageData.data;
+      const hist = new Uint32Array(256);
+
+      const totalPixels = imageData.width * imageData.height;
+      const targetSamples = 32768;
+      const stepPixels = Math.max(1, Math.floor(totalPixels / targetSamples));
+      const stepBytes = stepPixels * 4;
+
+      let samples = 0;
+      for (let i = 0; i < data.length; i += stepBytes) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const l = (0.299 * r + 0.587 * g + 0.114 * b) | 0;
+          hist[l] += 1;
+          samples += 1;
+      }
+
+      if (samples <= 0) {
+          return { pivot: 0.5, p5: 0, p50: 128, p95: 255, range: 1.0 };
+      }
+
+      const pct = (q) => {
+          const target = Math.min(samples, Math.max(1, Math.round(q * samples)));
+          let cum = 0;
+          for (let i = 0; i < 256; i++) {
+              cum += hist[i];
+              if (cum >= target) return i;
+          }
+          return 255;
+      };
+
+      const p5 = pct(0.05);
+      const p50 = pct(0.50);
+      const p95 = pct(0.95);
+
+      const range = (p95 - p5) / 255.0;
+      const pivot = clamp01(p50 / 255.0);
+
+      return { pivot, p5, p50, p95, range };
+  }
+
+  function getToneStats(imageData) {
+      if (
+          toneStatsCache.image === state.originalImage &&
+          toneStatsCache.w === imageData.width &&
+          toneStatsCache.h === imageData.height &&
+          toneStatsCache.stats
+      ) {
+          return toneStatsCache.stats;
+      }
+
+      const stats = computeToneStats(imageData);
+      toneStatsCache = {
+          image: state.originalImage,
+          w: imageData.width,
+          h: imageData.height,
+          stats
+      };
+
+      return stats;
+  }
+  
+  // --- Palette nearest lookup (perf) ---
+  const PALETTE_CACHE_BITS = 6; // 6 bits/channel => 64^3 = 262144 cache slots
+  const PALETTE_CACHE_SHIFT = 8 - PALETTE_CACHE_BITS; // 2
+  const PALETTE_CACHE_SIZE = 1 << (PALETTE_CACHE_BITS * 3);
+
+  let paletteFast = {
+      palette: null,
+      len: 0,
+      r: null,
+      g: null,
+      b: null,
+      table: null
+  };
+
+  function rebuildPaletteFast(palette) {
+      const len = palette.length;
+      const r = new Uint8Array(len);
+      const g = new Uint8Array(len);
+      const b = new Uint8Array(len);
+
+      for (let i = 0; i < len; i++) {
+          const p = palette[i];
+          r[i] = p.r;
+          g[i] = p.g;
+          b[i] = p.b;
+      }
+
+      const table = new Int16Array(PALETTE_CACHE_SIZE);
+      table.fill(-1);
+
+      return { palette, len, r, g, b, table };
+  }
+
+  function ensurePaletteFast(palette) {
+      if (!paletteFast.table || paletteFast.palette !== palette) {
+          paletteFast = rebuildPaletteFast(palette);
+      }
+      return paletteFast;
+  }
+
+  // No sqrt needed (we only compare distances)
+  function colorDistanceSq(r1, g1, b1, r2, g2, b2) {
+      const rmean = (r1 + r2) >> 1;
+      const r = r1 - r2;
+      const g = g1 - g2;
+      const b = b1 - b2;
+      return (((512 + rmean) * r * r) >> 8) + (4 * g * g) + (((767 - rmean) * b * b) >> 8);
+  }
+
+  function nearestPaletteIndex(r, g, b, pf) {
+      const key =
+          ((r >> PALETTE_CACHE_SHIFT) << (PALETTE_CACHE_BITS * 2)) |
+          ((g >> PALETTE_CACHE_SHIFT) << PALETTE_CACHE_BITS) |
+          (b >> PALETTE_CACHE_SHIFT);
+
+      let cached = pf.table[key];
+      if (cached >= 0) return cached;
+
+      let best = 0;
+      let bestDist = Infinity;
+      const pr = pf.r;
+      const pg = pf.g;
+      const pb = pf.b;
+      const n = pf.len;
+
+      for (let i = 0; i < n; i++) {
+          const dist = colorDistanceSq(r, g, b, pr[i], pg[i], pb[i]);
+          if (dist < bestDist) {
+              bestDist = dist;
+              best = i;
+              if (dist === 0) break;
+          }
+      }
+
+      pf.table[key] = best;
+      return best;
+  }
+
+  // Precomputed error diffusion kernels (factor already divided)
+  const ERROR_KERNELS = (() => {
+      const floyd = [[1, 0, 7 / 16], [-1, 1, 3 / 16], [0, 1, 5 / 16], [1, 1, 1 / 16]];
+      const atkinson = [[1, 0, 1 / 8], [2, 0, 1 / 8], [-1, 1, 1 / 8], [0, 1, 1 / 8], [1, 1, 1 / 8], [0, 2, 1 / 8]];
+      const flipX = (k) => k.map(([dx, dy, f]) => [-dx, dy, f]);
+      return {
+          floyd: { fwd: floyd, rev: flipX(floyd) },
+          atkinson: { fwd: atkinson, rev: flipX(atkinson) }
+      };
+  })();
+
+  const BAYER_MAP4 = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
+  const BAYER_MAP8 = [
+      [0, 48, 12, 60, 3, 51, 15, 63],
+      [32, 16, 44, 28, 35, 19, 47, 31],
+      [8, 56, 4, 52, 11, 59, 7, 55],
+      [40, 24, 36, 20, 43, 27, 39, 23],
+      [2, 50, 14, 62, 1, 49, 13, 61],
+      [34, 18, 46, 30, 33, 17, 45, 29],
+      [10, 58, 6, 54, 9, 57, 5, 53],
+      [42, 26, 38, 22, 41, 25, 37, 21]
+  ];
+  const BAYER_STRENGTH = 30;
+  const BAYER_FACTOR4 = (() => {
+      const t = new Float32Array(16);
+      for (let i = 0; i < 16; i++) t[i] = ((i / 16) - 0.5) * BAYER_STRENGTH;
+      return t;
+  })();
+  const BAYER_FACTOR8 = (() => {
+      const t = new Float32Array(64);
+      for (let i = 0; i < 64; i++) t[i] = ((i / 64) - 0.5) * BAYER_STRENGTH;
+      return t;
+  })();
+
+  function ditherNearest(imgData, palette) {
+    const pf = ensurePaletteFast(palette);
+    const pr = pf.r;
+    const pg = pf.g;
+    const pb = pf.b;
+    const d = imgData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const idx = nearestPaletteIndex(d[i], d[i + 1], d[i + 2], pf);
+      d[i] = pr[idx];
+      d[i + 1] = pg[idx];
+      d[i + 2] = pb[idx];
+    }
+  }
+
+  function ditherRandom(imgData, palette) {
+    const pf = ensurePaletteFast(palette);
+    const pr = pf.r;
+    const pg = pf.g;
+    const pb = pf.b;
+    const d = imgData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const noise = ((Math.random() * 31) | 0) - 15; // [-15..15]
+      let r = d[i] + noise;
+      let g = d[i + 1] + noise;
+      let b = d[i + 2] + noise;
+
+      if (r < 0) r = 0; else if (r > 255) r = 255;
+      if (g < 0) g = 0; else if (g > 255) g = 255;
+      if (b < 0) b = 0; else if (b > 255) b = 255;
+
+      const idx = nearestPaletteIndex(r, g, b, pf);
+      d[i] = pr[idx];
+      d[i + 1] = pg[idx];
+      d[i + 2] = pb[idx];
+    }
+  }
+
+  function ditherErrorDiffusion(imgData, palette, type, serpentine) {
+    const pf = ensurePaletteFast(palette);
+    const pr = pf.r;
+    const pg = pf.g;
+    const pb = pf.b;
+
+    const w = imgData.width | 0;
+    const h = imgData.height | 0;
+    const d = imgData.data;
+    const kernelPair = ERROR_KERNELS[type];
+    const kernelFwd = kernelPair.fwd;
+    const kernelRev = kernelPair.rev;
+
+    for (let y = 0; y < h; y++) {
+      const reverse = serpentine && ((y & 1) === 1);
+      const kernel = reverse ? kernelRev : kernelFwd;
+
+      let x = reverse ? (w - 1) : 0;
+      const endX = reverse ? -1 : w;
+      const stepX = reverse ? -1 : 1;
+      const rowOffset = (y * w) << 2;
+
+      for (; x !== endX; x += stepX) {
+        const i = rowOffset + (x << 2);
+        const oldR = d[i];
+        const oldG = d[i + 1];
+        const oldB = d[i + 2];
+
+        const idx = nearestPaletteIndex(oldR, oldG, oldB, pf);
+        const newR = pr[idx];
+        const newG = pg[idx];
+        const newB = pb[idx];
+
+        d[i] = newR;
+        d[i + 1] = newG;
+        d[i + 2] = newB;
+
+        const errR = oldR - newR;
+        const errG = oldG - newG;
+        const errB = oldB - newB;
+
+        for (let k = 0; k < kernel.length; k++) {
+          const dx = kernel[k][0];
+          const dy = kernel[k][1];
+          const factor = kernel[k][2];
+
+          const nx = x + dx;
+          const ny = y + dy;
+          if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
+
+          const ni = ((ny * w + nx) << 2);
+          d[ni] = d[ni] + errR * factor;
+          d[ni + 1] = d[ni + 1] + errG * factor;
+          d[ni + 2] = d[ni + 2] + errB * factor;
+        }
+      }
+    }
+  }
+
+  function ditherBayer(imgData, palette, mapSize) {
+    const pf = ensurePaletteFast(palette);
+    const pr = pf.r;
+    const pg = pf.g;
+    const pb = pf.b;
+
+    const currentMap = (mapSize === 8) ? BAYER_MAP8 : BAYER_MAP4;
+    const factorTable = (mapSize === 8) ? BAYER_FACTOR8 : BAYER_FACTOR4;
+    const w = imgData.width | 0;
+    const h = imgData.height | 0;
+    const d = imgData.data;
+
+    for (let y = 0; y < h; y++) {
+      const mapRow = currentMap[y % mapSize];
+      const rowOffset = (y * w) << 2;
+      for (let x = 0; x < w; x++) {
+        const i = rowOffset + (x << 2);
+        const mapValue = mapRow[x % mapSize];
+        const factor = factorTable[mapValue];
+
+        let r = d[i] + factor;
+        let g = d[i + 1] + factor;
+        let b = d[i + 2] + factor;
+
+        if (r < 0) r = 0; else if (r > 255) r = 255;
+        if (g < 0) g = 0; else if (g > 255) g = 255;
+        if (b < 0) b = 0; else if (b > 255) b = 255;
+
+        r = r | 0;
+        g = g | 0;
+        b = b | 0;
+
+        const idx = nearestPaletteIndex(r, g, b, pf);
+        d[i] = pr[idx];
+        d[i + 1] = pg[idx];
+        d[i + 2] = pb[idx];
+      }
+    }
+  }
+
+  function downloadImage() {
+    if (!state.lastOutput) return;
+    const link = document.createElement('a');
+    link.download = 'pixel-art-' + Date.now() + '.png';
+    const w = state.lastOutput.width;
+    const h = state.lastOutput.height;
+    const minWidth = 2000;
+    let scale = Math.ceil(minWidth / w);
+    if (scale < 1) scale = 1;
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = w * scale;
+    exportCanvas.height = h * scale;
+    const ctx = exportCanvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(state.lastOutput, 0, 0, exportCanvas.width, exportCanvas.height);
+    link.href = exportCanvas.toDataURL('image/png');
+    link.click();
+  }
+
+  return { init };
+})();
+
+App.init();
+
+</script>
+</body>
+</html>
