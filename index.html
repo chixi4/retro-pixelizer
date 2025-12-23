@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Retro Pixelizer Pro</title>
   <style>
-/* 核心风格：扁平化 (Flat)、无阴影 (No Drop-shadow)、黑白线框 */
+ 
+/* 主题变量：浅色模式的默认配色与尺寸 */
 :root {
   --bg: #ffffff;
   --fg: #000000;
@@ -17,6 +18,7 @@
   --preview-box: 840px;
 }
 
+/* 主题变量：深色模式的覆盖配色 */
 [data-theme="dark"] {
   --bg: #111111;
   --fg: #eeeeee;
@@ -27,7 +29,7 @@
   --accent: #ffffff;
 }
 
-/* Reset & Global Fixes */
+ 
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -35,7 +37,8 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Base */
+ 
+/* 页面基础样式：字体、背景、滚动行为 */
 body {
   font-family: "Courier New", "Liberation Mono", ui-monospace, SFMono-Regular, monospace;
   font-size: 13px;
@@ -47,7 +50,7 @@ body {
   overscroll-behavior: none;
 }
 
-/* Layout */
+ 
 .page {
   max-width: 1400px;
   margin: 0 auto;
@@ -56,7 +59,8 @@ body {
   flex-direction: column;
 }
 
-/* Header */
+ 
+/* 顶部栏：标题 + 主题切换按钮 */
 .header {
   display: flex;
   justify-content: space-between;
@@ -90,7 +94,8 @@ body {
   color: var(--bg);
 }
 
-/* --- 核心布局：左右分栏 (Desktop) --- */
+ 
+/* 主体两列布局：左侧控制区 + 右侧预览区 */
 .main {
   display: grid;
   grid-template-columns: 340px 1fr;
@@ -101,7 +106,8 @@ body {
   height: 100%;
 }
 
-/* 左侧控制栏 */
+ 
+/* 左侧控制区：允许独立滚动 */
 .controls {
   display: flex;
   flex-direction: column;
@@ -116,7 +122,8 @@ body {
   display: none;
 }
 
-/* 右侧预览区 */
+ 
+/* 右侧预览区：画布居中展示 */
 .preview-area {
   position: relative;
   height: 100%;
@@ -127,7 +134,8 @@ body {
   align-items: center;
 }
 
-/* Panel */
+ 
+/* 控制区卡片面板样式 */
 .panel {
   border: 2px solid var(--border);
   padding: 16px;
@@ -160,7 +168,7 @@ body {
   margin-bottom: 0;
 }
 
-/* Label Row Helper */
+ 
 .label-row {
   display: flex;
   justify-content: space-between;
@@ -177,7 +185,7 @@ body {
   margin-bottom: 0; 
 }
 
-/* Small Reset Button */
+ 
 .reset-btn {
   background: transparent;
   border: 1px solid var(--border);
@@ -197,13 +205,13 @@ body {
   padding: 30px 10px;
   text-align: center;
   cursor: pointer;
-  background: var(--bg) !important; /* 强制背景色不变 */
+  background: var(--bg) !important;  
   transition: border-color 0.2s;
-  -webkit-user-select: none; /* 禁止选中文本 */
+  -webkit-user-select: none;  
   user-select: none;
 }
 
-/* 只改变边框颜色，绝不改变背景色 */
+ 
 .upload-area:hover,
 .upload-area:active,
 .upload-area:focus {
@@ -216,7 +224,8 @@ body {
   color: var(--muted);
 }
 
-/* --- 自定义防误触滑块 --- */
+ 
+/* 自定义滑块：设置目标像素宽度 */
 .custom-slider {
   position: relative;
   width: 100%;
@@ -272,7 +281,7 @@ body {
   cursor: grabbing;
 }
 
-/* Grid Buttons */
+ 
 .grid-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -301,7 +310,7 @@ body {
   font-weight: bold;
 }
 
-/* Palette List */
+ 
 .palette-list {
   display: flex;
   flex-direction: column;
@@ -377,7 +386,8 @@ body {
   border: 1px solid rgba(0,0,0,0.1);
 }
 
-/* --- XY Pad Control --- */
+ 
+/* XY 面板：调节影调（对比度/明暗） */
 .xy-pad-container {
   position: relative;
   width: 100%;
@@ -397,7 +407,7 @@ body {
   touch-action: pan-y;
 }
 
-/* Action Button */
+ 
 .action-btn {
   width: 100%;
   background: var(--fg);
@@ -429,7 +439,8 @@ body {
   display: none; 
 }
 
-/* Canvas Container */
+ 
+/* 预览画布容器 */
 .canvas-container {
   background: var(--panel-bg);
   border: 2px dashed var(--border);
@@ -473,29 +484,22 @@ canvas {
   cursor: zoom-in;
 }
 
-/* 桌面端：预览显示尺寸固定（只变像素颗粒，不变占用大小） */
-@media (min-width: 769px) {
-  #mainCanvas {
-    width: 100%;
-    height: auto;
-  }
-}
-
+ 
 .main.has-image canvas {
   display: block;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* --- Close Button (Redesigned) --- */
+ 
 .close-btn {
   position: absolute;
-  top: 8px; /* 调整：更靠边 */
-  right: 8px; /* 调整：更靠边 */
-  width: 32px; /* 调整：更小巧 */
-  height: 32px; /* 调整：更小巧 */
-  background: var(--bg); /* 实心背景 */
+  top: 8px;  
+  right: 8px;  
+  width: 32px;  
+  height: 32px;  
+  background: var(--bg);  
   color: var(--fg);
-  border: 2px solid var(--fg); /* 实心边框 */
+  border: 2px solid var(--fg);  
   cursor: pointer;
   display: none;
   z-index: 20;
@@ -505,15 +509,15 @@ canvas {
   padding: 0;
 }
 
-/* 用 SVG 或者 CSS 绘制一个粗线条的 X */
+ 
 .close-btn svg {
-  width: 18px; /* 调整：图标也按比例缩小 */
+  width: 18px;  
   height: 18px;
   stroke: var(--fg);
-  stroke-width: 2.5; /* 稍微细一点，保持清晰 */
+  stroke-width: 2.5;  
 }
 
-/* 悬停或点击时反色，增加复古交互感 */
+ 
 .close-btn:hover,
 .close-btn:active {
   background: var(--fg);
@@ -525,10 +529,11 @@ canvas {
 }
 
 .main.has-image .close-btn {
-  display: flex; /* 改为 flex 以居中图标 */
+  display: flex;  
 }
 
-/* Fullscreen Modal */
+ 
+/* 全屏预览遮罩层 */
 .fullscreen-modal {
   display: none;
   position: fixed;
@@ -561,16 +566,17 @@ canvas {
   to { opacity: 1; }
 }
 
-/* --- Responsive Mobile Styles --- */
+ 
 @media (max-width: 768px) {
+  /* 移动端布局：上下堆叠 + 顶部预览固定 */
   :root {
     --mobile-header-h: 0px;
   }
 
-  /* 新思路：页面本身固定不滚动，只让控制区内部滚动 */
+   
   .page {
     display: block;
-    overflow: hidden; /* 页面本身不滚动 */
+    overflow: hidden;  
     height: 100vh;
     position: fixed;
     width: 100%;
@@ -586,14 +592,14 @@ canvas {
     z-index: 200;
     padding: 10px;
     margin-bottom: 0;
-    /* 默认隐藏在顶部外面 */
+     
     transform: translateY(-100%);
     transition: transform 0.3s ease-out;
     opacity: 1;
     pointer-events: auto;
   }
 
-  /* 显示标题栏 */
+   
   .header.visible {
     transform: translateY(0);
   }
@@ -604,7 +610,7 @@ canvas {
     padding: 0;
     gap: 0;
     height: 100vh;
-    overflow: hidden; /* Main 本身也不滚动 */
+    overflow: hidden;  
     position: relative;
   }
 
@@ -614,7 +620,7 @@ canvas {
     overflow: visible;
   }
 
-  /* 有图片时，预览区固定在顶部 */
+   
   .main.has-image .preview-area {
     display: block;
     position: fixed;
@@ -625,7 +631,6 @@ canvas {
     background: var(--bg) !important;
     border-bottom: 2px solid var(--border);
     padding: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     max-height: 40vh;
     height: 40vh;
     transform: translateY(0);
@@ -633,14 +638,14 @@ canvas {
     will-change: transform;
   }
 
-  /* Header 和预览区同一时刻、同一曲线移动，避免出现“漏缝” */
+   
   .header.visible + .main.has-image .preview-area {
     transform: translateY(var(--mobile-header-h));
   }
 
   .main.has-image .canvas-container {
     min-height: auto;
-    height: 35vh;
+    height: 100%;
     width: 100%;
     padding: 0;
     background: transparent !important;
@@ -657,28 +662,27 @@ canvas {
     width: auto;
     border: none !important; 
     background: transparent !important; 
-    box-shadow: none;
   }
   
-  /* Mobile Close Button Logic */
+   
   .close-btn {
-    opacity: 0; /* 手机端默认不可见 */
+    opacity: 0;  
     pointer-events: none;
-    /* 继承全局的小尺寸样式，不再单独放大，因为 32px 在移动端也够按了，且更好看 */
+     
   }
   
-  /* 只有当添加了 .visible 类（对应 Header 显示）才显示叉号 */
+   
   .close-btn.visible {
     opacity: 1;
     pointer-events: auto;
   }
 
   .controls {
-    /* 关键：控制区独立滚动，这是唯一可滚动的区域 */
+     
     overflow-y: auto !important;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: none; /* 禁止控制区的overscroll */
+    overscroll-behavior-y: none;  
     touch-action: pan-y;
     padding: 15px;
     padding-bottom: 80px;
@@ -686,12 +690,12 @@ canvas {
     position: relative;
   }
 
-  /* 无图时标题栏可见：给控制区预留标题栏高度，避免内容被遮住 */
+   
   .header.visible + .main .controls {
     padding-top: calc(15px + var(--mobile-header-h));
   }
 
-  /* 有图片时，控制区顶部留出预览区的空间 */
+   
   .main.has-image .controls {
     padding-top: calc(40vh + 15px);
     transition: padding-top 0.3s ease-out;
@@ -718,30 +722,37 @@ canvas {
 </head>
 <body>
 
+<!-- 全屏预览层：点击任意区域关闭 -->
 <div id="fullscreenModal" class="fullscreen-modal">
   <img id="fullscreenImage" src="" alt="Full Preview">
 </div>
 
+<!-- 应用外壳：包裹整个页面 -->
 <div class="page" id="pageContainer">
+  <!-- 顶部栏：标题与主题切换 -->
   <header class="header snap-active" id="headerRef">
     <div class="title">Retro Pixelizer Pro</div>
     <button id="themeToggle" class="theme-btn">◐</button>
   </header>
 
+  <!-- 主布局：左侧控制区 + 右侧预览区 -->
   <main class="main" id="mainContainer">
-    <!-- 左侧控制栏 -->
+    
+    <!-- 左侧控制面板：上传/参数/调色板/下载 -->
     <aside class="controls">
       
-      <!-- 1. 文件上传 -->
+      
+      <!-- 上传面板：点击或拖拽选择图片 -->
       <div class="panel">
-        <div class="panel-title">输入图像</div>
+        <div class="panel-title">上传图片</div>
         <div class="upload-area" id="uploadArea">
           <input type="file" id="fileInput" accept="image/*" hidden>
           <div class="upload-text">点击或拖拽上传<br>支持 JPG, PNG</div>
         </div>
       </div>
 
-      <!-- 2. 分辨率 & 影调控制 -->
+      
+      <!-- 预处理面板：尺寸缩放 + 影调调整 -->
       <div class="panel">
         <div class="panel-title">
           <span>图像预处理</span>
@@ -752,18 +763,18 @@ canvas {
             <label>图片像素</label>
             <span id="widthDisplay" style="font-size: 12px; font-weight: bold; color: var(--accent);">128px</span>
           </div>
-          <!-- 自定义防误触滑块 -->
+          
           <div class="custom-slider" id="widthSliderContainer">
             <div class="slider-track"></div>
             <div class="slider-thumb" id="widthSliderThumb"></div>
           </div>
         </div>
         
-        <!-- XY Pad (十字准星阵列) -->
+        
         <div class="form-group">
           <div class="label-row">
-            <label>影调调整</label>
-            <button id="resetToneBtn" class="reset-btn">↺ 还原</button>
+            <label>影调调色台</label>
+            <button id="resetToneBtn" class="reset-btn">↺ 重置</button>
           </div>
           <div class="xy-pad-container" id="xyPadContainer">
             <canvas id="xyGridCanvas"></canvas>
@@ -771,9 +782,10 @@ canvas {
         </div>
       </div>
 
-      <!-- 3. 算法 -->
+      
+      <!-- 纹理风格：选择不同像素化风格 -->
       <div class="panel">
-        <div class="panel-title">抖动算法</div>
+        <div class="panel-title">纹理风格</div>
         <div class="grid-buttons" id="ditherGrid">
           <button class="btn-toggle active" data-algo="atkinson">Atkinson</button>
           <button class="btn-toggle" data-algo="floyd-steinberg">Floyd</button>
@@ -784,28 +796,31 @@ canvas {
         </div>
       </div>
 
-      <!-- 4. 调色板 -->
+      
+      <!-- 调色板列表：限定颜色数量 -->
       <div class="panel palette-panel">
         <div class="panel-title">
             <span>调色板</span>
         </div>
-        <!-- 滚动列表 -->
+        
         <div class="palette-list" id="paletteList">
-            <!-- JS Generated -->
+            
         </div>
       </div>
 
-      <!-- 5. 导出 -->
+      
+      <!-- 下载按钮：导出 PNG -->
       <div class="panel">
         <button id="downloadBtn" class="action-btn" disabled>下载图片</button>
       </div>
 
     </aside>
 
-    <!-- 右侧预览区 -->
+    
+    <!-- 右侧预览区：显示处理结果 -->
     <section class="preview-area">
       <div class="canvas-container">
-        <!-- 关闭按钮 (全新设计) -->
+        
         <button id="closeImageBtn" class="close-btn" title="关闭图片">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M18 6L6 18" stroke-linecap="square" stroke-linejoin="round"/>
@@ -819,12 +834,14 @@ canvas {
 </div>
 
 <script>
-/**
- * Retro Pixelizer Pro - Canvas Grid Edition
- */
+
+// 单文件应用：用 IIFE 包裹，避免污染全局变量。
+// AI 使用说明：部分实现与优化建议参考了 AI 工具的建议。
+
 
 const App = (() => {
-  // State
+  
+  // 全局状态：保存当前图片、参数和交互设置。
   const state = {
     originalImage: null,
     targetWidth: 128,
@@ -832,12 +849,12 @@ const App = (() => {
     palette: null,
     paletteKey: 'dreamscape8', 
     isSerpentine: true,
-    // Tone Map Values
+    
     toneX: 0, 
     toneY: 0
   };
 
-  // Full Palette Database
+  // 内置调色板：名称 + 颜色列表（十六进制）。
   const PALETTES = {
     "dreamscape8": { name: "Dreamscape8", colors: ["#c9cca1", "#caa05a", "#ae6a47", "#8b4049", "#543344", "#515262", "#63787d", "#8ea091"] },
     "red-noir": { name: "Red Noir", colors: ["#FF0000", "#000000"] },
@@ -862,19 +879,20 @@ const App = (() => {
     "dream-haze-8": { name: "Dream Haze 8", colors: ["#3c42c4", "#6e51c8", "#a065cd", "#ce79d2", "#d68fb8", "#dda2a3", "#eac4ae", "#f4dfbe"] }
   };
 
-  // DOM Elements
+  
+  // 缓存常用 DOM 节点，避免重复查询。
   const els = {
     fileInput: document.getElementById('fileInput'),
     uploadArea: document.getElementById('uploadArea'),
-    // 自定义滑块元素
+    
     widthSliderContainer: document.getElementById('widthSliderContainer'),
     widthSliderThumb: document.getElementById('widthSliderThumb'),
     widthDisplay: document.getElementById('widthDisplay'),
-    // XY Elements
+    
     xyPadContainer: document.getElementById('xyPadContainer'),
     xyGridCanvas: document.getElementById('xyGridCanvas'),
     resetToneBtn: document.getElementById('resetToneBtn'),
-    //
+    
     ditherGrid: document.getElementById('ditherGrid'),
     paletteList: document.getElementById('paletteList'),
     canvas: document.getElementById('mainCanvas'),
@@ -883,55 +901,73 @@ const App = (() => {
     mainContainer: document.getElementById('mainContainer'),
     fullscreenModal: document.getElementById('fullscreenModal'),
     fullscreenImage: document.getElementById('fullscreenImage'),
-    pageContainer: document.getElementById('pageContainer'), // Add pageContainer ref
+    pageContainer: document.getElementById('pageContainer'), 
     header: document.getElementById('headerRef'),
-    closeBtn: document.getElementById('closeImageBtn') // 新增
+    closeBtn: document.getElementById('closeImageBtn') 
   };
 
-  // --- Initialization ---
+  
 
+  // 入口函数：绑定事件、初始化控件、加载默认调色板与主题。
   function init() {
     setupEventListeners();
     setupGridInteractions();
-    setupCustomSlider(); // 初始化自定义滑块
+    setupCustomSlider(); 
     renderPaletteList();
-    loadPalette('dreamscape8'); // Default
+    loadPalette('dreamscape8'); 
     updateTheme();
-    setupMobileScrollLogic(); // Initialize enhanced scroll logic
+    setupMobileScrollLogic(); 
   }
   
-  // --- 全新思路：监听控制区滚动，简单判断是否到顶 ---
+  
+  // 移动端逻辑：在小屏下通过“滚动 + 下拉”控制顶部栏显示。
+  // 目标是节省屏幕空间，但又能在需要时快速拉出标题栏。
   function setupMobileScrollLogic() {
+    // 相关 DOM：顶部栏、左侧控制区、关闭按钮。
     const elHeader = els.header;
     const elControls = document.querySelector('.controls');
     const elCloseBtn = els.closeBtn;
 
     if (!elHeader || !elControls) return;
 
+    // 只在 768px 以下生效，桌面端直接跳过。
     const mobileMQ = window.matchMedia('(max-width: 768px)');
     if (!mobileMQ.matches) return;
 
-    const TOP_EPS = 3; // 允许一点点误差，避免必须精准到 0
+    // 顶部“接近 0”的阈值，避免精度误差导致判断抖动。
+    const TOP_EPS = 3; 
 
+    // 把顶部栏高度写入 CSS 变量，供布局偏移使用。
     const setHeaderVar = (px) => {
       const val = Math.max(0, Number(px) || 0);
       document.documentElement.style.setProperty('--mobile-header-h', `${val.toFixed(2)}px`);
       return val;
     };
+    // 实时读取顶部栏高度（可变），用于更新 CSS 变量。
     const updateHeaderVar = () => {
       const h = elHeader.getBoundingClientRect().height || 0;
       return setHeaderVar(h);
     };
+    // 显示顶部栏，并在有图片时同步显示“关闭按钮”。
     const showHeader = () => {
-      updateHeaderVar(); // 先同步高度，保证 Header/预览区动画一致
+      updateHeaderVar(); 
       elHeader.classList.add('visible');
       if (elCloseBtn && state.originalImage) elCloseBtn.classList.add('visible');
     };
+    // 隐藏顶部栏，同时隐藏关闭按钮。
     const hideHeader = () => {
       elHeader.classList.remove('visible');
       if (elCloseBtn) elCloseBtn.classList.remove('visible');
     };
 
+    // 这组状态用于控制“下拉显示”的手势逻辑。
+    // activeImage：当前图片切换时重置手势。
+    // armed：是否已进入“准备显示”的状态（避免误触）。
+    // didScrollSinceLoad：用户是否滚动过（避免一上来就触发）。
+    // lastScrollTop：用于判断滚动方向。
+    // touchStartY：手指按下时的 Y 坐标。
+    // pulledThisGesture：每个手势只触发一次。
+    // gestureId/armedAtGesture：区分不同手势的“二段触发”。
     let activeImage = null;
     let armed = false;
     let didScrollSinceLoad = false;
@@ -941,6 +977,7 @@ const App = (() => {
     let gestureId = 0;
     let armedAtGesture = -1;
 
+    // 当换了新图时，重置滚动与手势状态。
     const syncImageSession = () => {
       if (state.originalImage === activeImage) return;
       activeImage = state.originalImage;
@@ -955,20 +992,21 @@ const App = (() => {
       if (!state.originalImage || !mobileMQ.matches) return;
       syncImageSession();
 
+      // 记录滚动方向：向上为 true。
       const scrollTop = elControls.scrollTop;
       const scrollingUp = scrollTop < lastScrollTop;
       lastScrollTop = scrollTop;
 
+      // 只有真的滚动过，才允许“下拉显示”。
       if (scrollTop > 5) didScrollSinceLoad = true;
 
-      // 关键修正：如果用户是通过“滑回顶部”来到顶端（含惯性滚动），把这次视作第一次动作（armed）
-      // 这样下一次下拉（第二次滑）就能直接显示 Header + 叉号。
+      // 接近顶部并且向上滚动时，进入“准备状态”，等待下一次下拉手势。
       if (didScrollSinceLoad && scrollingUp && scrollTop <= TOP_EPS && !elHeader.classList.contains('visible')) {
         armed = true;
         armedAtGesture = gestureId;
       }
 
-      // 往下滚动超过一定距离才隐藏，避免闪烁
+      // 向下滚动离开顶部时，自动隐藏顶部栏。
       if (!scrollingUp && scrollTop > 100 && elHeader.classList.contains('visible')) {
         hideHeader();
       }
@@ -976,6 +1014,7 @@ const App = (() => {
 
     elControls.addEventListener('touchstart', (e) => {
       if (!state.originalImage || !mobileMQ.matches) return;
+      // 记录新的触摸手势，并缓存起点坐标。
       gestureId += 1;
       touchStartY = e.touches && e.touches[0] ? e.touches[0].clientY : null;
       pulledThisGesture = false;
@@ -983,24 +1022,25 @@ const App = (() => {
 
     elControls.addEventListener('touchmove', (e) => {
       if (!state.originalImage || !mobileMQ.matches) return;
-      syncImageSession(); // 在这里检查图片是否变化
+      syncImageSession(); 
       if (touchStartY == null) return;
-      if (elHeader.classList.contains('visible')) return; // header显示时不处理
-      if (elControls.scrollTop > TOP_EPS) return; // 只在顶部处理
+      if (elHeader.classList.contains('visible')) return; 
+      if (elControls.scrollTop > TOP_EPS) return; 
 
       const y = e.touches && e.touches[0] ? e.touches[0].clientY : null;
       if (y == null) return;
 
-      // 手指向下拉（下拉刷新的动作）= dy > 0
+      // 只处理“向下拉”的动作，并要求拉动距离足够大。
       const dy = y - touchStartY;
-      if (dy <= 0) return; // 必须是向下拉
-      if (dy < 15) return; // 至少15px
+      if (dy <= 0) return; 
+      if (dy < 15) return; 
 
-      e.preventDefault(); // 阻止overscroll
+      // 阻止浏览器默认下拉回弹，保持手势判断稳定。
+      e.preventDefault(); 
       if (pulledThisGesture) return;
       pulledThisGesture = true;
 
-      // 初始态（刚上传且没滚动过）：一次下拉直接显示
+      // 第一次加载未滚动过，直接显示顶部栏。
       if (!didScrollSinceLoad) {
         showHeader();
         armed = false;
@@ -1008,14 +1048,14 @@ const App = (() => {
         return;
       }
 
-      // 已滚动过：需要两次动作
+      // 若未进入“准备状态”，先标记为准备，避免误触。
       if (!armed) {
         armed = true;
         armedAtGesture = gestureId;
         return;
       }
 
-      // armed 是在当前手势里刚设置的：仍然算“第一次”，不在同一次手势里直接显示
+      // 同一手势内不触发显示，需下一次手势才生效。
       if (armedAtGesture === gestureId) return;
 
       showHeader();
@@ -1025,32 +1065,36 @@ const App = (() => {
 
     elControls.addEventListener('touchend', () => {
       if (!state.originalImage || !mobileMQ.matches) return;
+      // 手势结束，清理临时状态。
       touchStartY = null;
       pulledThisGesture = false;
     }, { passive: true });
 
     window.addEventListener('resize', () => {
       if (!mobileMQ.matches) return;
+      // 旋转/尺寸变化后同步顶部栏高度，保证布局正确。
       if (elHeader.classList.contains('visible')) updateHeaderVar();
     }, { passive: true });
 
-    // 手机端无图初始态：标题栏默认显示（可切换主题等），且不显示叉号
+    // 没有图片时默认显示顶部栏并隐藏关闭按钮。
     if (!state.originalImage) {
       elHeader.classList.add('visible');
       if (elCloseBtn) elCloseBtn.classList.remove('visible');
     }
 
+    // 初始化一次高度变量，避免初始布局偏移错误。
     updateHeaderVar();
   }
 
-  // --- 核心更新：自定义防误触滑块逻辑 ---
+  
+  // 自定义滑块：设置目标宽度（像素），变化会触发重新处理。
   function setupCustomSlider() {
     const min = 32;
     const max = 640;
     const step = 4;
     let isDragging = false;
 
-    // 更新 UI 位置
+    
     const updateUI = () => {
       const containerW = els.widthSliderContainer.offsetWidth;
       const percent = (state.targetWidth - min) / (max - min);
@@ -1063,7 +1107,7 @@ const App = (() => {
       els.widthDisplay.textContent = `${state.targetWidth}px`;
     };
 
-    // 从位置反推数值
+    
     const updateValueFromX = (clientX) => {
       const rect = els.widthSliderContainer.getBoundingClientRect();
       let x = clientX - rect.left;
@@ -1113,16 +1157,18 @@ const App = (() => {
     setTimeout(updateUI, 100);
   }
 
-  // --- New Grid System (Crosshair Matrix) ---
+  
+  // XY 影调调色台的交互状态（拖拽位置/网格点）。
   let gridCtx;
   let isDraggingGrid = false;
   let cursorX = 0;
   let cursorY = 0;
   let gridPoints = [];
-  let resetGridState = () => {}; // External hook
+  let resetGridState = () => {}; 
   
   const HIT_RADIUS = 44; 
   
+  // XY 调色台交互：拖动光标映射到 toneX/toneY（范围 -1~1）。
   function setupGridInteractions() {
     const canvas = els.xyGridCanvas;
     gridCtx = canvas.getContext('2d');
@@ -1143,6 +1189,7 @@ const App = (() => {
             cursorY = rect.height / 2;
         }
 
+        // 尺寸变化时才重新生成网格点，避免每帧重复计算。
         initGridPoints(rect.width, rect.height);
         drawGrid();
     };
@@ -1224,12 +1271,14 @@ const App = (() => {
     window.addEventListener('touchend', end);
     window.addEventListener('touchcancel', end);
     
-    // Double click to reset
+    
     canvas.addEventListener('dblclick', reset);
     
     loopGrid();
 }
 
+  // 预计算网格交叉点坐标，绘制十字网格用。
+  // 先把点位算好，drawGrid 只需遍历列表，减少计算量。
   function initGridPoints(w, h) {
       gridPoints = [];
       const step = 20; 
@@ -1255,6 +1304,7 @@ const App = (() => {
       }
   }
 
+  // 绘制网格十字：靠近光标的位置更亮更粗，形成“焦点”。
   function drawGrid() {
       const rect = els.xyPadContainer.getBoundingClientRect();
       const w = rect.width;
@@ -1295,6 +1345,7 @@ const App = (() => {
       });
   }
 
+  // 拖拽时持续重绘，让反馈更顺滑；停止拖拽就不再刷帧，节省性能。
   function loopGrid() {
       drawGrid();
       if(isDraggingGrid) {
@@ -1302,6 +1353,7 @@ const App = (() => {
       }
   }
 
+  // 绑定 UI 事件：上传、按钮切换、主题、全屏预览等。
   function setupEventListeners() {
     els.uploadArea.addEventListener('click', () => els.fileInput.click());
     els.fileInput.addEventListener('change', handleFileSelect);
@@ -1309,6 +1361,7 @@ const App = (() => {
     els.uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); els.uploadArea.style.borderColor = 'var(--border)'; });
     els.uploadArea.addEventListener('drop', handleDrop);
 
+    // 抖动按钮用事件代理：只绑一个监听器，减少大量按钮监听。
     els.ditherGrid.addEventListener('click', (e) => {
       if (e.target.classList.contains('btn-toggle')) {
         document.querySelectorAll('#ditherGrid .btn-toggle').forEach(b => b.classList.remove('active'));
@@ -1324,7 +1377,7 @@ const App = (() => {
 
     els.downloadBtn.addEventListener('click', downloadImage);
     
-    // Close Button Event
+    
     els.closeBtn.addEventListener('click', closeImage);
 
     els.themeToggle.addEventListener('click', () => {
@@ -1349,13 +1402,14 @@ const App = (() => {
     });
   }
   
+  // 清空当前图片并重置 UI 与缓存画布。
   function closeImage(e) {
       if(e) e.stopPropagation();
 
       state.originalImage = null;
       state.lastOutput = null;
 
-      // 清理处理缓存，释放内存并避免下次误命中
+      
       proc.scaled.image = null;
       proc.scaled.data = null;
       proc.work.data = null;
@@ -1367,7 +1421,7 @@ const App = (() => {
 
       els.closeBtn.classList.remove('visible');
 
-      // 手机端关闭图片后回到“无图”状态：标题栏应显示
+      
       if (window.innerWidth <= 768) {
           els.header.classList.add('visible');
           const h = els.header.getBoundingClientRect().height || 0;
@@ -1382,16 +1436,18 @@ const App = (() => {
       const ctx = els.canvas.getContext('2d');
       ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
 
-      // 控制区滚回顶部
+      
       const controls = document.querySelector('.controls');
       if (controls) controls.scrollTop = 0;
   }
 
+  // 从 localStorage 读取主题并应用到根节点。
   function updateTheme() {
     const isDark = localStorage.getItem('pixelizer_theme') === 'dark';
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
   }
 
+  // 切换主题并保存到 localStorage。
   function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
@@ -1399,6 +1455,7 @@ const App = (() => {
     updateTheme();
   }
 
+  // 处理拖拽上传文件。
   function handleDrop(e) {
     e.preventDefault();
     els.uploadArea.style.borderColor = 'var(--border)';
@@ -1406,12 +1463,14 @@ const App = (() => {
     if (file && file.type.startsWith('image/')) loadFile(file);
   }
 
+  // 处理文件选择框上传。
   function handleFileSelect(e) {
     const file = e.target.files[0];
     if (file) loadFile(file);
     e.target.value = '';
   }
 
+  // 读取图片文件为 DataURL，再加载为 Image 对象。
   function loadFile(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -1423,7 +1482,7 @@ const App = (() => {
         
         resetGridState();
 
-        // 手机端确保header隐藏，closeBtn也隐藏
+        
         if (window.innerWidth <= 768) {
             els.header.classList.remove('visible');
             els.closeBtn.classList.remove('visible');
@@ -1434,6 +1493,7 @@ const App = (() => {
     reader.readAsDataURL(file);
   }
 
+  // 渲染调色板列表：按颜色数排序并生成预览色块。
   function renderPaletteList() {
     els.paletteList.innerHTML = '';
     
@@ -1481,18 +1541,21 @@ const App = (() => {
     });
   }
 
+  // 根据 key 切换调色板。
   function loadPalette(key) {
     state.paletteKey = key;
     loadPaletteData(PALETTES[key].colors);
   }
   
+  // 把十六进制颜色转为 RGB 对象，方便后续计算。
   function loadPaletteData(colors) {
       state.palette = hexToRgb(colors);
-      // warm up palette cache (perf)
+      
       ensurePaletteFast(state.palette);
       requestProcess();
   }
 
+  // 工具函数：hex 字符串转 {r,g,b}。
   function hexToRgb(hexArr) {
     return hexArr.map(h => {
       const r = parseInt(h.slice(1, 3), 16);
@@ -1502,10 +1565,14 @@ const App = (() => {
     });
   }
 
+  // 简单的处理锁，避免并发渲染造成卡顿。
   let isProcessing = false;
   let updatePending = false;
 
-  // --- Processing buffers (perf) ---
+  // 复用离屏画布和缓冲区，减少频繁分配与 GC 压力。
+  // - bufferCanvas: 负责把原图缩放到目标尺寸
+  // - pixelCanvas: 保存像素化结果，供预览与导出
+  // - scaled/work: 缓存缩放后的像素与工作副本，避免重复计算
   const proc = {
       bufferCanvas: document.createElement('canvas'),
       bufferCtx: null,
@@ -1525,6 +1592,8 @@ const App = (() => {
       }
   };
 
+  // 请求处理：把多次 UI 变化合并到下一帧，避免频繁重算。
+  // isProcessing/updatePending 形成轻量“防抖 + 串行”机制。
   function requestProcess() {
     if (!state.originalImage || !state.palette) return;
 
@@ -1536,6 +1605,7 @@ const App = (() => {
     isProcessing = true;
     updatePending = false;
 
+    // rAF 让处理同步到浏览器绘制节奏，setTimeout 0 让出主线程。
     requestAnimationFrame(() => {
         setTimeout(() => {
             processImage();
@@ -1547,13 +1617,15 @@ const App = (() => {
     });
   }
 
+  // 主处理流程：缩放 -> 影调 -> 抖动 -> 绘制预览。
   function processImage() {
     const { originalImage, targetWidth, palette, ditherAlgo, toneX, toneY } = state;
 
+    // 按原图比例计算目标高度，避免拉伸变形。
     const aspect = originalImage.height / originalImage.width;
     const targetHeight = Math.round(targetWidth * aspect);
     
-    // 1) Build / reuse scaled base pixels (costly draw+getImageData happens only when size/image changes)
+    // 只有图片或尺寸变化时才重新缩放并缓存像素，提升性能。
     if (
         proc.scaled.image !== originalImage ||
         proc.scaled.w !== targetWidth ||
@@ -1565,6 +1637,7 @@ const App = (() => {
         buffer.height = targetHeight;
 
         if (!proc.bufferCtx) {
+            // willReadFrequently 提示浏览器优化 getImageData 的读取路径。
             proc.bufferCtx = buffer.getContext('2d', { willReadFrequently: true });
         }
         const ctx = proc.bufferCtx;
@@ -1581,25 +1654,28 @@ const App = (() => {
         };
     }
 
-    // 2) Reuse working buffer to avoid allocations / GC churn
+    
     const baseData = proc.scaled.data;
     const neededLen = baseData.length;
     if (!proc.work.data || proc.work.data.length !== neededLen) {
+        // 复用 Uint8ClampedArray 与 ImageData，避免每次 new。
         proc.work.data = new Uint8ClampedArray(neededLen);
         proc.work.imageData = new ImageData(proc.work.data, targetWidth, targetHeight);
         proc.work.w = targetWidth;
         proc.work.h = targetHeight;
     }
+    // 复制到工作区，后面的调整/抖动只改工作区。
     proc.work.data.set(baseData);
 
     const workImageData = proc.work.imageData;
 
-    // 3) Tone map (stats computed from base pixels, then applied to working buffer)
+    // 根据 XY 调整亮度/对比；默认为 0 则不处理。
     if (toneX !== 0 || toneY !== 0) {
         const toneStats = getToneStats({ data: baseData, width: targetWidth, height: targetHeight });
         applyDynamicToneMapping(workImageData, toneX, toneY, toneStats);
     }
 
+    // 颜色量化 + 抖动，把颜色压进调色板。
     switch (ditherAlgo) {
       case 'floyd-steinberg':
         ditherErrorDiffusion(workImageData, palette, 'floyd', state.isSerpentine);
@@ -1620,6 +1696,7 @@ const App = (() => {
         ditherNearest(workImageData, palette);
     }
 
+    // 预览用无插值放大，保持像素硬边，同时限制最大预览尺寸。
     const displayScale = Math.max(1, Math.floor(1000 / targetWidth));
     els.canvas.width = targetWidth * displayScale;
     els.canvas.height = targetHeight * displayScale;
@@ -1630,6 +1707,7 @@ const App = (() => {
     pixelCanvas.width = targetWidth;
     pixelCanvas.height = targetHeight;
     if (!proc.pixelCtx) {
+        // 频繁 putImageData，提示浏览器优化写入路径。
         proc.pixelCtx = pixelCanvas.getContext('2d', { willReadFrequently: true });
     }
     proc.pixelCtx.putImageData(workImageData, 0, 0);
@@ -1641,6 +1719,8 @@ const App = (() => {
     els.downloadBtn.disabled = false;
   }
   
+  // 影调映射：基于 XY 参数，并参考统计值稳定对比度。
+  // AI 辅助：影调映射的曲线与保护区策略参考了 AI 工具的建议。
   function applyDynamicToneMapping(imageData, x, y, toneStats) {
     const data = imageData.data;
     const len = data.length;
@@ -1652,27 +1732,28 @@ const App = (() => {
     const p5Raw = (toneStats && typeof toneStats.p5 === 'number') ? toneStats.p5 : 0;
     const p95Raw = (toneStats && typeof toneStats.p95 === 'number') ? toneStats.p95 : 255;
 
-    // 根据当前调整强度动态留出 headroom，避免极端时高光打死/暗部死黑
+    
+    // 根据拖动强度设置“保护区”，避免高光/暗部被推到极端。
     const strength = clamp01(Math.max(Math.abs(x), Math.abs(y)));
-    const guard = 1 + Math.round(3 * strength); // 1..4 (8bit)
-    const eps = guard / 255.0; // 0.004..0.016
+    const guard = 1 + Math.round(3 * strength); 
+    const eps = guard / 255.0; 
     const lo = eps;
     const hi = 1.0 - eps;
 
     const logit = (v) => Math.log(v / (1 - v));
     const invLogit = (t) => 1 / (1 + Math.exp(-t));
 
-    // 自适应中值：把对比度“中线”对齐到照片的中值，但 0 点仍然是完全不动
+    
     const pivot = clamp(pivotRaw, 0.05, 0.95);
     const pivotSafe = clamp(pivot, lo, hi);
     const lp = logit(pivotSafe);
 
-    // 影调变化越大（range 越大），亮度手感越“有力”；变化不明显则更克制
-    const contrastConfidence = smoothstep(0.18, 0.75, range); // 0=flat, 1=high-contrast
+    
+    const contrastConfidence = smoothstep(0.18, 0.75, range); 
 
-    // --- Contrast (X): logit-domain slope around pivot, has toe+shoulder (不会硬截断) ---
-    // 额外“安全边界”：保证大多数高光不打死、暗部不死黑（也让软饱和有发挥空间）
-    const targetGuard = guard + Math.round(5 * strength); // 1..9 (8bit)
+    
+    
+    const targetGuard = guard + Math.round(5 * strength); 
     const loT = clamp(targetGuard / 255.0, lo, 0.45);
     const hiT = clamp(1.0 - (targetGuard / 255.0), 0.55, hi);
     const Llo = logit(loT);
@@ -1685,41 +1766,42 @@ const App = (() => {
     const d5 = t5 - lp;
     const d95 = t95 - lp;
 
-    // 给“加对比度”一个自适应上限：避免极端 X 把高光/暗部挤到边界上导致“过曝/死黑”
+    
     let cMax = 8.0;
     if (d95 > 1e-6) cMax = Math.min(cMax, (Lhi - lp) / d95);
-    if (d5 < -1e-6) cMax = Math.min(cMax, (Llo - lp) / d5); // d5<0 且 Llo-lp<0 => 正数上限
+    if (d5 < -1e-6) cMax = Math.min(cMax, (Llo - lp) / d5); 
     cMax = clamp(cMax, 1.0, 8.0);
 
     const xCurve = Math.sign(x) * Math.pow(Math.abs(x), 1.25);
-    const xScale = 1.0 + (1.0 - contrastConfidence) * 0.30; // flat 图稍更敏感
+    const xScale = 1.0 + (1.0 - contrastConfidence) * 0.30; 
     const xEff = clamp(xCurve * xScale, -1.0, 1.0);
     const xSat = Math.tanh(xEff * 1.25) / Math.tanh(1.25);
-    const contrastMax = 2.12; // 2^2.12 ≈ 4.35（高对比图会被 cMax 自动限制）
+    const contrastMax = 2.12; 
     const cWanted = Math.pow(2, xSat * contrastMax);
     const c = Math.min(cWanted, cMax);
 
-    // --- Brightness (Y): 用“加权 logit shift”做非对称提亮/压暗 ---
-    // 提亮时主要抬暗部、尽量不推高光；压暗时主要压亮部、尽量不压暗部
+    
+    
     const yCurve = Math.sign(y) * Math.pow(Math.abs(y), 1.60);
-    const yScale = 1.0 + contrastConfidence * 0.50; // 影调关系清晰 -> 亮度更“有劲”
+    const yScale = 1.0 + contrastConfidence * 0.50; 
     const dirScaleRaw = (y >= 0)
-      ? (1.0 + (0.5 - pivotSafe) * 0.90)  // 暗图更容易提亮
-      : (1.0 + (pivotSafe - 0.5) * 0.90); // 亮图更容易压暗
+      ? (1.0 + (0.5 - pivotSafe) * 0.90)  
+      : (1.0 + (pivotSafe - 0.5) * 0.90); 
     const dirScale = clamp(dirScaleRaw, 0.90, 1.25);
     const yEff = clamp(yCurve * yScale * dirScale, -1.0, 1.0);
     const ySat = Math.tanh(yEff * 1.15) / Math.tanh(1.15);
 
-    // “梯形”手感：越靠左亮度范围越小（更精细），往右逐渐放大，到中线后保持最大
-    const yRangeT = clamp01(x + 1.0); // x=-1 =>0, x=0 =>1, x>0 =>1
-    const yRangeScale = 0.62 + 0.38 * yRangeT; // 左侧 62% 范围，右侧 100%
+    
+    const yRangeT = clamp01(x + 1.0); 
+    const yRangeScale = 0.62 + 0.38 * yRangeT; 
 
-    const bMax = (2.55 + 0.85 * contrastConfidence) * yRangeScale; // 1.58..3.40
-    const brightnessRangeScale = 0.7; // 亮度调整范围缩放（1=当前强度）
+    const bMax = (2.55 + 0.85 * contrastConfidence) * yRangeScale; 
+    const brightnessRangeScale = 0.7; 
     const bBase = ySat * bMax * brightnessRangeScale;
     const yWeightPow = 1.05;
 
-    // Build luma mapping LUT (0..255), output stays within [guard..255-guard]
+    
+    // 生成亮度映射查找表，加速逐像素处理。
     const lumaLut = new Float32Array(256);
     for (let i = 0; i < 256; i++) {
       const v = clamp(i / 255.0, lo, hi);
@@ -1737,42 +1819,45 @@ const App = (() => {
       lumaLut[i] = out * 255.0;
     }
 
-    // Fluorescent fix: highlights/shadows auto desaturate (只在接近黑白时生效，避免“荧光”)
-    // - Midtones keep saturation (factor ~1)
-    // - Near extremes, reduce chroma more when adjustment is strong and when luma shift is large
+    
+    
+    
+    // 生成饱和度修正表，避免亮/暗边缘颜色溢出。
     const satLut = new Float32Array(256);
-    const edgeWidth = 0.30; // 0..0.5, bigger => wider highlight/shadow rolloff
-    const satEdgeStrength = 0.78; // strength=1 -> minSat ~ 0.22 (更明显)
+    const edgeWidth = 0.30; 
+    const satEdgeStrength = 0.78; 
     const minSat = 1.0 - satEdgeStrength * strength;
-    const deltaK = 0.9 + 2.2 * strength; // bigger => more desat when luma shifts a lot
+    const deltaK = 0.9 + 2.2 * strength; 
 
     for (let i = 0; i < 256; i++) {
       const nl = lumaLut[i];
       const nl01 = nl / 255.0;
-      const dEdge = Math.min(nl01, 1.0 - nl01); // 0 at extremes, 0.5 at mid
+      const dEdge = Math.min(nl01, 1.0 - nl01); 
 
       let t = dEdge / edgeWidth;
       t = clamp01(t);
-      const edgeW = t * t * (3 - 2 * t); // 0 at extremes, 1 at mid
+      const edgeW = t * t * (3 - 2 * t); 
 
-      const satEdge = minSat + (1.0 - minSat) * edgeW; // minSat at extremes, 1 at mid
+      const satEdge = minSat + (1.0 - minSat) * edgeW; 
 
       const dL = Math.abs(nl - i) / 255.0;
-      const satDelta = Math.exp(-dL * deltaK); // <=1
-      const satDeltaEdge = edgeW + (1.0 - edgeW) * satDelta; // mid=1, extremes=satDelta
+      const satDelta = Math.exp(-dL * deltaK); 
+      const satDeltaEdge = edgeW + (1.0 - edgeW) * satDelta; 
 
       satLut[i] = clamp01(satEdge * satDeltaEdge);
     }
 
-    // Soft-saturation / gamut-guard: adjust luma first, then reduce chroma only when needed
+    
     const lower = guard;
     const upper = 255 - guard;
 
+    // 逐像素应用亮度与饱和度调整。
     for (let idx = 0; idx < len; idx += 4) {
       const r0 = data[idx];
       const g0 = data[idx + 1];
       const b0 = data[idx + 2];
 
+      // 用整数权重近似亮度，避免浮点运算。
       const l = (77 * r0 + 150 * g0 + 29 * b0) >> 8;
       const nl = lumaLut[l];
 
@@ -1793,21 +1878,23 @@ const App = (() => {
       sat = clamp01(sat);
       if (!Number.isFinite(sat)) sat = 0.0;
 
-      // Extra rolloff (addresses “荧光感”): only reduces chroma, never increases it
+      
       sat *= satLut[l];
 
       const rAdj = nl + dr * sat;
       const gAdj = nl + dg * sat;
       const bAdj = nl + db * sat;
 
-      // Uint8ClampedArray will clamp/round for us (faster than Math.min/Math.max here)
+      
       data[idx]     = rAdj;
       data[idx + 1] = gAdj;
       data[idx + 2] = bAdj;
     }
   }
 
-  // --- Tone Analysis (Adaptive Pivot + Sensitivity) ---
+  
+  // 影调统计缓存：按图像与尺寸复用结果。
+  // AI 辅助：直方图采样与缓存策略参考了 AI 工具的建议。
   let toneStatsCache = {
       image: null,
       w: 0,
@@ -1822,13 +1909,18 @@ const App = (() => {
       return t * t * (3 - 2 * t);
   };
 
+  // 采样像素估计直方图统计（p5/p50/p95）。
   function computeToneStats(imageData) {
       const data = imageData.data;
+      // 直方图用 Uint32Array，访问快且占用固定内存。
       const hist = new Uint32Array(256);
 
+      // 为了速度，只抽样部分像素来估计分布。
       const totalPixels = imageData.width * imageData.height;
+      // 控制采样数量上限，避免大图遍历所有像素导致卡顿。
       const targetSamples = 32768;
       const stepPixels = Math.max(1, Math.floor(totalPixels / targetSamples));
+      // 每次跨 stepPixels 个像素取样，步长越大越快。
       const stepBytes = stepPixels * 4;
 
       let samples = 0;
@@ -1865,7 +1957,9 @@ const App = (() => {
       return { pivot, p5, p50, p95, range };
   }
 
+  // 读取统计缓存，没有就重新计算。
   function getToneStats(imageData) {
+      // 图像对象/尺寸不变时直接复用上次统计，避免重复扫描。
       if (
           toneStatsCache.image === state.originalImage &&
           toneStatsCache.w === imageData.width &&
@@ -1886,9 +1980,12 @@ const App = (() => {
       return stats;
   }
   
-  // --- Palette nearest lookup (perf) ---
-  const PALETTE_CACHE_BITS = 6; // 6 bits/channel => 64^3 = 262144 cache slots
-  const PALETTE_CACHE_SHIFT = 8 - PALETTE_CACHE_BITS; // 2
+  
+  // 调色板查找缓存：量化 RGB -> 最近颜色索引。
+  // AI 辅助：调色板缓存与量化 key 的思路参考了 AI 工具的建议。
+  // 6 位量化：每通道 64 级，总表大小 64^3 = 262144，速度换内存。
+  const PALETTE_CACHE_BITS = 6; 
+  const PALETTE_CACHE_SHIFT = 8 - PALETTE_CACHE_BITS; 
   const PALETTE_CACHE_SIZE = 1 << (PALETTE_CACHE_BITS * 3);
 
   let paletteFast = {
@@ -1900,8 +1997,11 @@ const App = (() => {
       table: null
   };
 
+  // 构建调色板的 typed array 和缓存表。
+  // typed array 让内层像素循环更快，table 用于缓存最近索引。
   function rebuildPaletteFast(palette) {
       const len = palette.length;
+      // 单独拆分 R/G/B 数组，内层循环读写更快。
       const r = new Uint8Array(len);
       const g = new Uint8Array(len);
       const b = new Uint8Array(len);
@@ -1913,12 +2013,14 @@ const App = (() => {
           b[i] = p.b;
       }
 
+      // Int16 足够存索引，且内存更小。
       const table = new Int16Array(PALETTE_CACHE_SIZE);
       table.fill(-1);
 
       return { palette, len, r, g, b, table };
   }
 
+  // 确保缓存与当前调色板一致，避免每次切换都重建。
   function ensurePaletteFast(palette) {
       if (!paletteFast.table || paletteFast.palette !== palette) {
           paletteFast = rebuildPaletteFast(palette);
@@ -1926,7 +2028,9 @@ const App = (() => {
       return paletteFast;
   }
 
-  // No sqrt needed (we only compare distances)
+  
+  // 加权颜色距离（考虑人眼对颜色的敏感度）。
+  // 使用位移与整数运算，减少浮点计算成本。
   function colorDistanceSq(r1, g1, b1, r2, g2, b2) {
       const rmean = (r1 + r2) >> 1;
       const r = r1 - r2;
@@ -1935,17 +2039,22 @@ const App = (() => {
       return (((512 + rmean) * r * r) >> 8) + (4 * g * g) + (((767 - rmean) * b * b) >> 8);
   }
 
+  // 查找最近的调色板颜色，优先命中缓存。
+  // 通过量化后的 key 快速索引，未命中再做全量搜索。
   function nearestPaletteIndex(r, g, b, pf) {
+      // 量化后的 RGB 组合成 key，便于 O(1) 查表。
       const key =
           ((r >> PALETTE_CACHE_SHIFT) << (PALETTE_CACHE_BITS * 2)) |
           ((g >> PALETTE_CACHE_SHIFT) << PALETTE_CACHE_BITS) |
           (b >> PALETTE_CACHE_SHIFT);
 
+      // 命中缓存直接返回，避免全量搜索。
       let cached = pf.table[key];
       if (cached >= 0) return cached;
 
       let best = 0;
       let bestDist = Infinity;
+      // 提前取出数组引用，减少循环中的属性查找。
       const pr = pf.r;
       const pg = pf.g;
       const pb = pf.b;
@@ -1956,6 +2065,7 @@ const App = (() => {
           if (dist < bestDist) {
               bestDist = dist;
               best = i;
+              // 完全相同颜色可提前退出，省掉后续循环。
               if (dist === 0) break;
           }
       }
@@ -1964,7 +2074,10 @@ const App = (() => {
       return best;
   }
 
-  // Precomputed error diffusion kernels (factor already divided)
+  
+  // 误差扩散抖动的卷积核（Floyd/Atkinson）。
+  // AI 辅助：抖动核的组织与蛇形扫描结构参考了 AI 工具的建议。
+  // IIFE 只构建一次，避免每次处理时反复创建数组。
   const ERROR_KERNELS = (() => {
       const floyd = [[1, 0, 7 / 16], [-1, 1, 3 / 16], [0, 1, 5 / 16], [1, 1, 1 / 16]];
       const atkinson = [[1, 0, 1 / 8], [2, 0, 1 / 8], [-1, 1, 1 / 8], [0, 1, 1 / 8], [1, 1, 1 / 8], [0, 2, 1 / 8]];
@@ -1987,6 +2100,7 @@ const App = (() => {
       [42, 26, 38, 22, 41, 25, 37, 21]
   ];
   const BAYER_STRENGTH = 30;
+  // 预计算 Bayer 阈值表，减少抖动循环中的数学开销。
   const BAYER_FACTOR4 = (() => {
       const t = new Float32Array(16);
       for (let i = 0; i < 16; i++) t[i] = ((i / 16) - 0.5) * BAYER_STRENGTH;
@@ -1998,8 +2112,10 @@ const App = (() => {
       return t;
   })();
 
+  // 无抖动：直接映射到最近的调色板颜色。
   function ditherNearest(imgData, palette) {
     const pf = ensurePaletteFast(palette);
+    // 把常用数据提到局部变量，减少热循环里的属性访问。
     const pr = pf.r;
     const pg = pf.g;
     const pb = pf.b;
@@ -2012,14 +2128,17 @@ const App = (() => {
     }
   }
 
+  // 随机抖动：先加少量噪声再量化。
   function ditherRandom(imgData, palette) {
     const pf = ensurePaletteFast(palette);
+    // 局部缓存数组引用，提升循环速度。
     const pr = pf.r;
     const pg = pf.g;
     const pb = pf.b;
     const d = imgData.data;
     for (let i = 0; i < d.length; i += 4) {
-      const noise = ((Math.random() * 31) | 0) - 15; // [-15..15]
+      // 位运算取整，避免 Math.floor 的开销。
+      const noise = ((Math.random() * 31) | 0) - 15; 
       let r = d[i] + noise;
       let g = d[i + 1] + noise;
       let b = d[i + 2] + noise;
@@ -2035,15 +2154,19 @@ const App = (() => {
     }
   }
 
+  // 误差扩散抖动：将误差分配到邻近像素。
   function ditherErrorDiffusion(imgData, palette, type, serpentine) {
     const pf = ensurePaletteFast(palette);
+    // 缓存引用，减少内层循环取值成本。
     const pr = pf.r;
     const pg = pf.g;
     const pb = pf.b;
 
+    // 位运算取整 + 局部变量，提升循环效率。
     const w = imgData.width | 0;
     const h = imgData.height | 0;
     const d = imgData.data;
+    // 提前取出卷积核，避免内层循环里判断类型。
     const kernelPair = ERROR_KERNELS[type];
     const kernelFwd = kernelPair.fwd;
     const kernelRev = kernelPair.rev;
@@ -2055,6 +2178,7 @@ const App = (() => {
       let x = reverse ? (w - 1) : 0;
       const endX = reverse ? -1 : w;
       const stepX = reverse ? -1 : 1;
+      // 预先算好行偏移，避免内层重复乘法。
       const rowOffset = (y * w) << 2;
 
       for (; x !== endX; x += stepX) {
@@ -2094,12 +2218,15 @@ const App = (() => {
     }
   }
 
+  // 有序抖动：使用 Bayer 矩阵阈值。
   function ditherBayer(imgData, palette, mapSize) {
     const pf = ensurePaletteFast(palette);
+    // 缓存引用以减少热循环开销。
     const pr = pf.r;
     const pg = pf.g;
     const pb = pf.b;
 
+    // 预选表与局部变量，减少判断与属性访问。
     const currentMap = (mapSize === 8) ? BAYER_MAP8 : BAYER_MAP4;
     const factorTable = (mapSize === 8) ? BAYER_FACTOR8 : BAYER_FACTOR4;
     const w = imgData.width | 0;
@@ -2107,7 +2234,9 @@ const App = (() => {
     const d = imgData.data;
 
     for (let y = 0; y < h; y++) {
+      // 提前取当前行的阈值数组，减少二维索引开销。
       const mapRow = currentMap[y % mapSize];
+      // 行偏移缓存，减少内层乘法。
       const rowOffset = (y * w) << 2;
       for (let x = 0; x < w; x++) {
         const i = rowOffset + (x << 2);
@@ -2122,6 +2251,7 @@ const App = (() => {
         if (g < 0) g = 0; else if (g > 255) g = 255;
         if (b < 0) b = 0; else if (b > 255) b = 255;
 
+        // 位运算转整数，保证索引计算稳定且更快。
         r = r | 0;
         g = g | 0;
         b = b | 0;
@@ -2134,12 +2264,14 @@ const App = (() => {
     }
   }
 
+  // 导出：把像素图放大后保存为 PNG。
   function downloadImage() {
     if (!state.lastOutput) return;
     const link = document.createElement('a');
     link.download = 'pixel-art-' + Date.now() + '.png';
     const w = state.lastOutput.width;
     const h = state.lastOutput.height;
+    // 导出时至少放大到 2000px 宽，保证像素清晰。
     const minWidth = 2000;
     let scale = Math.ceil(minWidth / w);
     if (scale < 1) scale = 1;
